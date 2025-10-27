@@ -51,7 +51,7 @@ nvn-africa-platform/
 │   ├── nvn_app/        # Express mobile app
 │   └── nvn_web/        # React web app
 │
-├── backend/
+├── server/
 │   ├── src/
 │   ├── tests/
 │   └── package.json or requirements.txt
