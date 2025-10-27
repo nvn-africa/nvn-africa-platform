@@ -32,12 +32,12 @@ A digitally connected generation of African youth driving community transformati
 
 | Layer | Technology |
 |-------|-------------|
-| **Frontend (Mobile)** | Flutter |
+| **Frontend (Mobile)** | Express |
 | **Frontend (Web)** | React.js |
-| **Backend** | Node.js (Express) / Django REST Framework |
-| **Database** | PostgreSQL / Firebase |
+| **Backend** | Node.js (Express) |
+| **Database** | MongoDB |
 | **Payments** | Paystack / Flutterwave |
-| **Hosting** | AWS / Google Cloud |
+| **Hosting** | AWS  |
 | **Security** | SSL, MFA, GDPR + AU Data Protection compliance |
 
 ---
@@ -48,7 +48,7 @@ A digitally connected generation of African youth driving community transformati
 nvn-africa-platform/
 │
 ├── frontend/
-│   ├── nvn_app/        # Flutter mobile app
+│   ├── nvn_app/        # Express mobile app
 │   └── nvn_web/        # React web app
 │
 ├── backend/
