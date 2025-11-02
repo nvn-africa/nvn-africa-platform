@@ -2,19 +2,31 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Users, Target, Leaf, ArrowRight } from "lucide-react";
+import nvnLogo from "@/assets/nvn-logo.png";
 
 const Home = () => {
   return (
     <div>
       {/* Hero Section */}
       <section className="relative bg-gradient-hero text-primary-foreground py-20 lg:py-32">
+
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
+            <Link to="/" className="flex items-center space-x-3 hover:opacity-90 transition-opacity">
+              <img src={nvnLogo} alt="NVN Africa Logo" className="h-14 w-auto" />
+              <div className="hidden sm:block">
+                <div className="text-xl font-bold text-primary">NVN Africa</div>
+                <div className="text-xs text-muted-foreground">NAMYO Volunteer Network</div>
+              </div>
+            </Link>
+            <div className="inline-block  mb-6 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full border border-white/20">
+              <p className="text-sm font-medium">NAMYO Volunteer Network- Africa</p>
+            </div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 animate-in fade-in slide-in-from-bottom-4 duration-1000">
               Mobilizing Africa's Youth for Service, Leadership, and Change
             </h1>
             <p className="text-xl md:text-2xl mb-8 text-primary-foreground/90 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-150">
-              Join Africa's largest digital volunteer and civic engagement network — powered by NAMYO Africa
+              Join Africa's largest digital volunteer and civic engagement network and become a leader in your own right.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-300">
               <Button size="lg" variant="secondary" asChild className="text-lg">
