@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Users, Target, Leaf, ArrowRight } from "lucide-react";
 import nvnLogo from "@/assets/nvn-logo.png";
+import nvnLogo1 from "../assets/nvn-logo.png"
 
 const Home = () => {
   return (
@@ -11,13 +12,9 @@ const Home = () => {
       <section className="relative bg-gradient-hero text-primary-foreground py-20 lg:py-32">
 
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-4xl mx-auto text-center">
+          <div className="inline-block  mb-6 px-4 py-2">
             <Link to="/" className="flex items-center space-x-3 hover:opacity-90 transition-opacity">
-              <img src={nvnLogo} alt="NVN Africa Logo" className="h-14 w-auto" />
-              <div className="hidden sm:block">
-                <div className="text-xl font-bold text-primary">NVN Africa</div>
-                <div className="text-xs text-muted-foreground">NAMYO Volunteer Network</div>
-              </div>
+              <img src={nvnLogo1} alt="NVN Africa Logo" className="h-14 w-auto" />
             </Link>
             <div className="inline-block  mb-6 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full border border-white/20">
               <p className="text-sm font-medium">NAMYO Volunteer Network- Africa</p>
