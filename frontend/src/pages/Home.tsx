@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Users, Target, Leaf, ArrowRight } from "lucide-react";
-import nvnLogo from "@/assets/nvn-logo.png";
+import nvnLogo from "@/assets/nvn-logo.jpeg";
 
 const Home = () => {
   return (
@@ -13,14 +13,12 @@ const Home = () => {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
 
-            <Link to="/" className="flex items-center space-x-3 hover:opacity-90 transition-opacity">
-              <img src={nvnLogo} alt="NVN Africa Logo" className="h-14 w-auto" />
-              <div className="hidden sm:block">
-                <div className="text-xl font-bold text-primary">NVN Africa</div>
-                <div className="text-xs text-muted-foreground">NAMYO Volunteer Network</div>
-              </div>
-            </Link>
+            <div className="flex items-center justify-center mb-6">
+              <Link to="/" className="flex items-center space-x-3 hover:opacity-90 transition-opacity">
+                <img src={nvnLogo} alt="NVN Africa Logo" className="h-16 w-auto" />
 
+              </Link>
+            </div>
 
 
             <div className="inline-block  mb-6 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full border border-white/20">
