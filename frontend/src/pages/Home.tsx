@@ -13,12 +13,6 @@ const Home = () => {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
 
-            <div className="flex items-center justify-center mb-6">
-              <Link to="/" className="flex items-center space-x-3 hover:opacity-90 transition-opacity">
-                <img src={nvnLogo} alt="NVN Africa Logo" className="h-16 w-auto" />
-
-              </Link>
-            </div>
 
 
             <div className="inline-block  mb-6 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full border border-white/20">
