@@ -37,7 +37,7 @@ A digitally connected generation of African youth driving community transformati
 | **Backend** | Node.js (Express) |
 | **Database** | MongoDB |
 | **Payments** | Paystack / Flutterwave |
-| **Hosting** | AWS  |
+| **Hosting** | Vercel & Render  |
 | **Security** | SSL, MFA, GDPR + AU Data Protection compliance |
 
 ---
