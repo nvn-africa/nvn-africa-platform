@@ -5,6 +5,8 @@
 The **NVN Africa Platform** is the official digital volunteer and civic engagement ecosystem of the **Non-Aligned Movement Youth Organization (NAMYO) – Africa Regional Office**.  
 It connects, empowers, and tracks youth volunteers across Africa through verified service, leadership, and impact-driven projects.
 
+Website - https://nvn-africa-platform-uvv7.vercel.app
+
 ---
 
 ## 🚀 Overview
@@ -37,7 +39,7 @@ A digitally connected generation of African youth driving community transformati
 | **Backend** | Node.js (Express) |
 | **Database** | MongoDB |
 | **Payments** | Paystack / Flutterwave |
-| **Hosting** | AWS  |
+| **Hosting** | Vercel & Render  |
 | **Security** | SSL, MFA, GDPR + AU Data Protection compliance |
 
 ---
