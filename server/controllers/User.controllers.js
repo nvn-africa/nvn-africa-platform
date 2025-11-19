@@ -27,11 +27,13 @@ export const user = async (req, res) => {
 }
 
 
-export const kyc_verification = async (req, res) => {
+export const kyc_upload = async (req, res) => {
     try {
-        const { user_id, document_type, file_url, selfie_url, rejection_reason } = req.body;
+        const { document_type, file_url, selfie_url, rejection_reason } = req.body;
 
-        if (!user_id || !document_type || !file_url || !selfie_url) return res.status(400).json({ message: "All fields are required" })
+        if (!document_type || !file_url || !selfie_url) return res.status(400).json({ message: "All fields are required" })
+
+        const user_id = req.user._id;
 
         if (!mongoose.Types.ObjectId.isValid(user_id)) {
             return res.status(400).json({ message: "Invalid user ID" });
@@ -46,7 +48,12 @@ export const kyc_verification = async (req, res) => {
             return res.status(400).json({ message: "KYC already submitted and pending verification" });
         }
 
-        const kyc_verify = new KYC({ user_id, document_type, file_url, selfie_url, rejection_reason })
+        const kyc_verify = new KYC({
+            user_id: user_id,
+            document_type,
+            file_url, selfie_url,
+            rejection_reason
+        })
 
         await kyc_verify.save();
 
@@ -64,12 +71,13 @@ export const kyc_verification = async (req, res) => {
 
 export const kyc_approval = async (req, res) => {
     try {
-        const { kyc_id } = req.body;
+        const { id } = req.params;
 
-        if (!kyc_id) return res.status(400).json({ message: "All fields are required" })
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ message: "Invalid KYC ID" });
+        }
 
-        const approvedKyc = await KYC.findById(kyc_id);
-
+        const approvedKyc = await KYC.findById(id);
 
         if (!approvedKyc) return res.status(400).json({ message: "This kyc does not exist" })
 
@@ -101,11 +109,13 @@ export const kyc_approval = async (req, res) => {
 
 export const kyc_rejection = async (req, res) => {
     try {
-        const { kyc_id } = req.body;
+        const { id } = req.params;
 
-        if (!kyc_id) return res.status(400).json({ message: "All fields are required" })
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ message: "Invalid KYC ID" });
+        }
 
-        const uploadedKyc = await KYC.findById(kyc_id);
+        const uploadedKyc = await KYC.findById(id);
 
         if (!uploadedKyc) return res.status(400).json({ message: "This kyc does not exist" })
 
