@@ -143,3 +143,18 @@ export const kyc_rejection = async (req, res) => {
         res.status(500).json({ message: "Error in kyc_approval controller", error: error })
     }
 }
+
+
+export const user_profile = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const userProfile = await User.findById(userId).select("-password");
+        if (!userProfile) {
+            return res.status(404).json({ message: "User not found" })
+        }
+        return res.status(200).json({ message: "User profile fetched successfully", data: userProfile })
+
+    } catch (error) {
+        res.status(500).json({ message: "Error in user_profile controller", error: error })
+    }
+}

@@ -42,8 +42,11 @@ const userSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ["admin", "mobilizer","chief_mobilizer", "general_mobilizer","community_lead"],
-        default: "mobilizer"
+        enum: ["volunteer", "admin", "mobilizer", "chief_mobilizer", "general_mobilizer", "community_lead"],
+        default: "volunteer"
+    },
+    no_of_projects_done: {
+        type: Number
     },
 
     isBanned: {

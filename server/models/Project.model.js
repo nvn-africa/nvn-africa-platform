@@ -1,13 +1,13 @@
 import mongoose from "mongoose";
 
 const projectSchema = new mongoose.Schema({
-    project_name: {
+    title: {
         type: String,
         required: true,
         unique: true
     },
 
-    project_description: {
+    description: {
         type: String,
         required: true
     },
@@ -21,17 +21,12 @@ const projectSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    volunteers: [{
-        user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-        check_in_time: Date,
-        check_out_time: Date,
-        hours_earned: Number
-    }],
+
 
     status: {
         type: String,
-        enum: ["pending", "active", "completed", "approved", "rejected"],
-        default: "pending"
+        enum: ["upcoming", "ongoing", "completed"],
+        default: "upcoming"
     },
     start_date: {
         type: Date,
@@ -43,18 +38,10 @@ const projectSchema = new mongoose.Schema({
         required: false
     },
 
-    created_by: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User"
-    },
-    approved_by: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User"
-    },
-    rejected_by: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User"
-    },
+    requirements: [String],
+    neededVolunteers: Number,
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    images: [String],
 
 }, { timestamps: true })
 
