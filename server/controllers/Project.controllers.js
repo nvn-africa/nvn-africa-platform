@@ -1,8 +1,23 @@
 import mongoose from "mongoose";
 import User from "../models/User.model.js";
 import Project from "../models/Project.model.js";
+import ProjectRequest from "../models/ProjectRequest.model.js";
 
-export const view_my_project = async (req, res) => {
+export const view_all_project = async (req, res) => {
+    try {
+        const all_projects = await Project.find().sort({ createdAt: -1 });;
+        return res.status(200).json({
+            success: true,
+            message: "All projects fetched successfully",
+            count: all_projects.length,
+            data: all_projects
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Error in update_project controller", error: error.message });
+    }
+}
+
+export const view_my_created_project = async (req, res) => {
     try {
         const userId = req.user._id;
 
@@ -14,6 +29,57 @@ export const view_my_project = async (req, res) => {
         });
     } catch (error) {
         res.status(500).json({ message: "Error in update_project controller", error });
+    }
+}
+
+
+export const view_all_project_requests = async (req, res) => {
+    try {
+        const userId = req.user._id;
+
+        const all_projects_requests = await ProjectRequest.find().sort({ createdAt: -1 });
+        return res.status(200).json({
+            success: true,
+            message: `These are my projects.`,
+            count: all_projects_requests.length,
+            data: all_projects_requests
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Error in update_project controller", error });
+    }
+}
+
+export const view_all_approved_project_requests = async (req, res) => {
+    try {
+        const requests = await ProjectRequest.find({
+            status: "approved"
+        }).populate("project");
+        const projects = requests.map(r => r.project);
+        return res.status(200).json({
+            success: true,
+            message: `These are all approved projects.`,
+            count: projects.length,
+            data: projects
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Error in view_all_approved_project_requests controller", error });
+    }
+}
+
+export const view_all_rejected_project_requests = async (req, res) => {
+    try {
+        const requests = await ProjectRequest.find({
+            status: "rejected"
+        }).populate("project");
+        const projects = requests.map(r => r.project);
+        return res.status(200).json({
+            success: true,
+            message: `These are all rejected projects.`,
+            count: projects.length,
+            data: projects
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Error in view_all_approved_project_requests controller", error });
     }
 }
 
@@ -80,11 +146,47 @@ const updateProjectStatus = async (req, res, newStatus) => {
         if (project.status === newStatus) {
             return res.status(400).json({ message: `Project is already ${newStatus}` });
         }
-
+        const previousStatus = project.status;
         project.status = newStatus;
 
 
         await project.save();
+
+        // ------------------------------
+        // HANDLE PROJECT COMPLETION LOGIC
+        // ------------------------------
+
+        if (newStatus === "completed" && previousStatus !== "completed") {
+
+            // Get all approved volunteers for this project
+            const approvedVolunteers = await ProjectRequest.find({
+                project: id,
+                status: "approved"
+            });
+
+            const volunteerIds = approvedVolunteers.map(v => v.volunteer);
+
+
+            await User.updateMany(
+                { _id: { $in: volunteerIds } },
+                { $inc: { no_of_projects_done: 1 } }
+            );
+
+            const updatedUsers = await User.find({ _id: { $in: volunteerIds } });
+
+            for (const user of updatedUsers) {
+                const completed = user.no_of_projects_done;
+
+                let newRole = "volunteer";
+                if (completed >= 3 && completed <= 4) newRole = "mobilizer";
+                if (completed >= 5) newRole = "admin";
+
+                if (user.role !== newRole) {
+                    await User.findByIdAndUpdate(user._id, { role: newRole });
+                }
+            }
+
+        }
 
         return res.status(200).json({
             success: true,
@@ -93,7 +195,7 @@ const updateProjectStatus = async (req, res, newStatus) => {
         });
 
     } catch (error) {
-        return res.status(500).json({ message: "Error updating project status", error });
+        return res.status(500).json({ message: "Error updating project status", error: error.message });
     }
 }
 
@@ -231,3 +333,126 @@ export const delete_project = async (req, res) => {
         res.status(500).json({ message: "Error in delete_project controller", error });
     }
 }
+
+
+export const project_request = async (req, res) => {
+    try {
+
+        const userId = req.user._id;
+        const { id } = req.params;
+
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ message: "Invalid Project ID" });
+        }
+
+        const projectExist = await Project.findById(id);
+        if (!projectExist) {
+            return res.status(404).json({ message: "Project not found" });
+        }
+
+        const existingRequest = await ProjectRequest.findOne({
+            volunteer: userId,
+            project: id
+        });
+
+        if (existingRequest) {
+            return res.status(400).json({
+                message: "You have already requested to join this project"
+            });
+        }
+
+        const request = new ProjectRequest({
+            volunteer: userId,
+            project: id,
+            status: "pending"
+        });
+
+        await request.save();
+
+        return res.status(200).json({
+            success: true,
+            message: `You have requested to join the project ${projectExist.title}`,
+            data: request
+        });
+
+    } catch (error) {
+        return res.status(500).json({ message: "Error project request status", error });
+    }
+}
+
+
+// REQYUESR APPROVAL AND REJECTION
+
+const updateProjectRequestStatus = async (req, res, newStatus) => {
+    try {
+
+        const userId = req.user._id;
+        const { id } = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ message: "Invalid Project Request ID" });
+        }
+
+        const projectRequest = await ProjectRequest.findById(id);
+        if (!projectRequest) return res.status(404).json({ message: "Project Request not found" });
+
+        if (req.user.role !== "admin") {
+            return res.status(403).json({ message: 'You are not authorized to update this project status' })
+        }
+
+
+        // if already same status
+        if (projectRequest.status === newStatus) {
+            return res.status(400).json({ message: `Project Requaet is already ${newStatus}` });
+        }
+
+        projectRequest.status = newStatus;
+
+
+        await projectRequest.save();
+
+        return res.status(200).json({
+            success: true,
+            message: `Project is now ${newStatus} by ${req.user.username}`,
+            data: projectRequest
+        });
+
+    } catch (error) {
+        return res.status(500).json({ message: "Error updating project status", error });
+    }
+}
+
+export const approved_request = (req, res) =>
+    updateProjectRequestStatus(req, res, "approved");
+
+
+export const rejected_request = (req, res) =>
+    updateProjectRequestStatus(req, res, "rejected");
+
+
+
+export const my_approved_projects = async (req, res) => {
+    try {
+        const userId = req.user._id;
+
+        const requests = await ProjectRequest.find({
+            volunteer: userId,
+            status: "approved"
+        }).populate("project");
+        const projects = requests.map(r => r.project);
+        return res.status(200).json({
+            success: true,
+            message: "These are the projects I am volunteering for.",
+            data: projects
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            message: "Error in my_approved_projects controller",
+            error
+        });
+    }
+}
+
+
