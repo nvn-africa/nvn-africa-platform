@@ -32,9 +32,17 @@ const userSchema = new mongoose.Schema({
     date_of_birth: {
         type: Date
     },
+    skills: {
+        type: String,
+        required: true
+    },
+    other_skills: {
+        type: String,
+        required: true
+    },
     gender: {
         type: String,
-        enum: ["male", "female", "other"]
+        enum: ["male", "female"]
     },
     address: {
         type: String,
