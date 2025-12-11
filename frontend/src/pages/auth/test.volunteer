@@ -1,0 +1,685 @@
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { toast } from "sonner";
+import { Heart, ArrowLeft, ArrowRight, Eye, EyeOff, CalendarIcon, Check, Sparkles, User, Mail, Phone, Lock, MapPin } from "lucide-react";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
+import axios from "axios";
+
+const SKILLS = [
+  "Teaching", "First Aid", "Event Planning", "Social Media",
+  "Community Mobilization", "Graphic Design", "Public Speaking", "Data Entry",
+  "Photography", "Video Editing", "Translation", "Fundraising"
+];
+
+const INTERESTS = [
+  "Climate Action", "Education", "Health", "Civic Engagement",
+  "Technology", "Agriculture", "Humanitarian Relief", "Youth Empowerment",
+  "Gender Equality", "Arts & Culture"
+];
+
+const AVAILABILITY = [
+  { value: "weekdays", label: "Weekdays" },
+  { value: "weekends", label: "Weekends" },
+  { value: "remote", label: "Remote" },
+  { value: "onsite", label: "On-site" }
+];
+
+const VolunteerAuth = () => {
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState<"login" | "signup">("signup");
+  const [step, setStep] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [signupSuccess, setSignupSuccess] = useState(false);
+
+  const [loginData, setLoginData] = useState({ email: "", password: "" });
+  const [signupData, setSignupData] = useState({
+    firstName: "",
+    lastName: "",
+    username: "",
+    email: "",
+    phone: "",
+    password: "",
+    gender: "",
+    dateOfBirth: undefined as Date | undefined,
+    address: "",
+    skills: [] as string[],
+    interests: [] as string[],
+    availability: [] as string[],
+    bio: ""
+  });
+
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const validateEmail = (email: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  const validatePhone = (phone: string) => {
+    // African phone number format (supports +country codes)
+    return /^(\+?[0-9]{1,3})?[0-9]{9,12}$/.test(phone.replace(/[\s-]/g, ""));
+  };
+
+  const getPasswordStrength = (password: string) => {
+    let strength = 0;
+    if (password.length >= 8) strength++;
+    if (/[A-Z]/.test(password)) strength++;
+    if (/[a-z]/.test(password)) strength++;
+    if (/[0-9]/.test(password)) strength++;
+    if (/[^A-Za-z0-9]/.test(password)) strength++;
+    return strength;
+  };
+
+  const passwordStrength = getPasswordStrength(signupData.password);
+  const strengthLabels = ["Very Weak", "Weak", "Fair", "Strong", "Very Strong"];
+  const strengthColors = ["bg-destructive", "bg-orange-500", "bg-warning", "bg-success", "bg-emerald-500"];
+
+  const validateStep1 = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!signupData.firstName.trim()) newErrors.firstName = "First name is required";
+    if (!signupData.lastName.trim()) newErrors.lastName = "Last name is required";
+    if (!signupData.username.trim()) newErrors.username = "Username is required";
+    if (!signupData.email.trim()) newErrors.email = "Email is required";
+    else if (!validateEmail(signupData.email)) newErrors.email = "Please enter a valid email";
+    if (!signupData.phone.trim()) newErrors.phone = "Phone number is required";
+    else if (!validatePhone(signupData.phone)) newErrors.phone = "Please enter a valid phone number";
+    if (!signupData.password) newErrors.password = "Password is required";
+    else if (passwordStrength < 2) newErrors.password = "Password is too weak";
+    if (!signupData.gender) newErrors.gender = "Please select your gender";
+    if (!signupData.dateOfBirth) newErrors.dateOfBirth = "Date of birth is required";
+    if (!signupData.address.trim()) newErrors.address = "Address is required";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const validateStep2 = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (signupData.skills.length === 0) newErrors.skills = "Please select at least one skill";
+    if (signupData.interests.length === 0) newErrors.interests = "Please select at least one interest";
+    if (signupData.availability.length === 0) newErrors.availability = "Please select your availability";
+    if (!signupData.bio.trim()) newErrors.bio = "Please tell us why you want to volunteer";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleContinue = () => {
+    if (validateStep1()) {
+      setStep(2);
+    }
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+      toast.success("Welcome back!");
+      navigate("/volunteer");
+    }, 1000);
+  };
+
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validateStep2()) return;
+    try {
+      // Build payload from signupData
+      const payload = {
+        firstName: signupData.firstName,
+        lastName: signupData.lastName,
+        username: signupData.username,
+        email: signupData.email,
+        phone: signupData.phone,
+        password: signupData.password,
+        gender: signupData.gender,
+        dateOfBirth: signupData.dateOfBirth ? signupData.dateOfBirth.toISOString() : undefined,
+        address: signupData.address,
+        skills: signupData.skills,
+        interests: signupData.interests,
+        availability: signupData.availability,
+        bio: signupData.bio
+      };
+
+      const response = await axios.post("http://localhost:3000/api/auth/register", payload);
+      // console.log("Response from backend:", response.data);
+
+      if (response.data?.success) {
+        // If backend returns user and token you can store them here
+        setSignupSuccess(true);
+        toast.success("Application submitted!");
+        // navigate after a short delay or let the UI show success screen (we show success screen)
+      } else {
+        setErrors({ general: response.data?.message || "Signup failed" });
+      }
+    } catch (error: any) {
+      setErrors({ general: error?.response?.data?.message || "An error occurred during signup" });
+    } finally {
+      setIsLoading(false);
+    }
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+      setSignupSuccess(true);
+    }, 1500);
+
+
+  };
+
+  const toggleTag = (array: string[], item: string, setter: (arr: string[]) => void) => {
+    if (array.includes(item)) {
+      setter(array.filter(i => i !== item));
+    } else {
+      setter([...array, item]);
+    }
+  };
+
+  if (signupSuccess) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-primary/10 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md border-0 shadow-2xl rounded-3xl overflow-hidden">
+          <div className="bg-gradient-to-r from-primary to-primary/80 p-8 text-center">
+            <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
+              <Check className="h-10 w-10 text-white" />
+            </div>
+            <h2 className="text-2xl font-bold text-white">Application Submitted!</h2>
+          </div>
+          <CardContent className="p-8 text-center">
+            <div className="space-y-4">
+              <p className="text-muted-foreground">
+                Thank you for applying to join NAMYO Africa as a volunteer, <strong className="text-foreground">{signupData.firstName}</strong>!
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Your application is now pending review. We'll notify you at <strong className="text-foreground">{signupData.email}</strong> once your account is approved.
+              </p>
+              <div className="bg-muted/50 rounded-xl p-4 mt-6">
+                <p className="text-sm text-muted-foreground">
+                  <Sparkles className="h-4 w-4 inline mr-1 text-primary" />
+                  While you wait, follow us on social media to stay updated!
+                </p>
+              </div>
+            </div>
+            <Button
+              onClick={() => navigate("/")}
+              className="w-full mt-6 rounded-xl bg-primary hover:bg-primary/90 text-white py-6"
+            >
+              Back to Home
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-primary/10 flex items-center justify-center p-4">
+      <div className="w-full max-w-xl">
+        <Button
+          variant="ghost"
+          onClick={() => navigate("/")}
+          className="mb-6 text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Home
+        </Button>
+
+        <Card className="border-0 shadow-2xl rounded-3xl overflow-hidden">
+          {/* Header */}
+          <div className="bg-gradient-to-r from-primary to-primary/80 p-6 text-center relative overflow-hidden">
+            <div className="absolute inset-0 opacity-10">
+              <div className="absolute inset-0 bg-white/5" style={{ backgroundImage: 'radial-gradient(circle at 25px 25px, white 2px, transparent 0)', backgroundSize: '50px 50px' }} />
+            </div>
+            <div className="relative">
+              <div className="mx-auto w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mb-3 backdrop-blur-sm">
+                <Heart className="h-8 w-8 text-white" />
+              </div>
+              <h1 className="text-2xl font-bold text-white">NAMYO Africa</h1>
+              <p className="text-white/80 text-sm mt-1">Volunteer Portal</p>
+            </div>
+          </div>
+
+          {/* Tab Toggle */}
+          <div className="flex border-b border-border">
+            <button
+              onClick={() => { setActiveTab("login"); setStep(1); setErrors({}); }}
+              className={cn(
+                "flex-1 py-4 text-center font-medium transition-colors relative",
+                activeTab === "login"
+                  ? "text-primary"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              Login
+              {activeTab === "login" && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
+              )}
+            </button>
+            <button
+              onClick={() => { setActiveTab("signup"); setErrors({}); }}
+              className={cn(
+                "flex-1 py-4 text-center font-medium transition-colors relative",
+                activeTab === "signup"
+                  ? "text-primary"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              Sign Up
+              {activeTab === "signup" && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
+              )}
+            </button>
+          </div>
+
+          <CardContent className="p-6">
+            {/* Login Form */}
+            {activeTab === "login" && (
+              <form onSubmit={handleLogin} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="login-email">Email</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="login-email"
+                      type="email"
+                      placeholder="you@example.com"
+                      value={loginData.email}
+                      onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
+                      required
+                      className="pl-10 rounded-xl border-border focus-visible:ring-primary"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="login-password">Password</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="login-password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      value={loginData.password}
+                      onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
+                      required
+                      className="pl-10 pr-10 rounded-xl border-border focus-visible:ring-primary"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                </div>
+                <Button
+                  type="submit"
+                  className="w-full rounded-xl bg-primary hover:bg-primary/90 text-white py-6 text-lg"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Signing in..." : "Sign In"}
+                </Button>
+              </form>
+            )}
+
+            {/* Signup Form */}
+            {activeTab === "signup" && (
+              <>
+                {/* Progress Indicator */}
+                <div className="flex items-center justify-center mb-6">
+                  <div className="flex items-center gap-2">
+                    <div className={cn(
+                      "w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors",
+                      step >= 1 ? "bg-primary text-white" : "bg-muted text-muted-foreground"
+                    )}>
+                      1
+                    </div>
+                    <div className={cn(
+                      "w-20 h-1 rounded-full transition-colors",
+                      step >= 2 ? "bg-primary" : "bg-muted"
+                    )} />
+                    <div className={cn(
+                      "w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors",
+                      step >= 2 ? "bg-primary text-white" : "bg-muted text-muted-foreground"
+                    )}>
+                      2
+                    </div>
+                  </div>
+                </div>
+
+                <p className="text-center text-sm text-muted-foreground mb-6">
+                  {step === 1 ? "Step 1: Personal Information" : "Step 2: Skills & Profile"}
+                </p>
+
+                {/* Step 1: Personal Information */}
+                {step === 1 && (
+                  <form onSubmit={(e) => { e.preventDefault(); handleContinue(); }} className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="firstName">First Name</Label>
+                        <Input
+                          id="firstName"
+                          placeholder="John"
+                          value={signupData.firstName}
+                          onChange={(e) => setSignupData({ ...signupData, firstName: e.target.value })}
+                          className={cn("rounded-xl", errors.firstName && "border-destructive")}
+                        />
+                        {errors.firstName && <p className="text-xs text-destructive">{errors.firstName}</p>}
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="lastName">Last Name</Label>
+                        <Input
+                          id="lastName"
+                          placeholder="Doe"
+                          value={signupData.lastName}
+                          onChange={(e) => setSignupData({ ...signupData, lastName: e.target.value })}
+                          className={cn("rounded-xl", errors.lastName && "border-destructive")}
+                        />
+                        {errors.lastName && <p className="text-xs text-destructive">{errors.lastName}</p>}
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="username">Username</Label>
+                      <div className="relative">
+                        <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="username"
+                          placeholder="johndoe"
+                          value={signupData.username}
+                          onChange={(e) => setSignupData({ ...signupData, username: e.target.value })}
+                          className={cn("pl-10 rounded-xl", errors.username && "border-destructive")}
+                        />
+                      </div>
+                      {errors.username && <p className="text-xs text-destructive">{errors.username}</p>}
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email</Label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="email"
+                          type="email"
+                          placeholder="john@example.com"
+                          value={signupData.email}
+                          onChange={(e) => setSignupData({ ...signupData, email: e.target.value })}
+                          className={cn("pl-10 rounded-xl", errors.email && "border-destructive")}
+                        />
+                      </div>
+                      {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="phone">Phone Number</Label>
+                      <div className="relative">
+                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="phone"
+                          type="tel"
+                          placeholder="+234 800 000 0000"
+                          value={signupData.phone}
+                          onChange={(e) => setSignupData({ ...signupData, phone: e.target.value })}
+                          className={cn("pl-10 rounded-xl", errors.phone && "border-destructive")}
+                        />
+                      </div>
+                      {errors.phone && <p className="text-xs text-destructive">{errors.phone}</p>}
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="password">Password</Label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="password"
+                          type={showPassword ? "text" : "password"}
+                          placeholder="••••••••"
+                          value={signupData.password}
+                          onChange={(e) => setSignupData({ ...signupData, password: e.target.value })}
+                          className={cn("pl-10 pr-10 rounded-xl", errors.password && "border-destructive")}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        >
+                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </button>
+                      </div>
+                      {signupData.password && (
+                        <div className="space-y-1">
+                          <div className="flex gap-1">
+                            {[...Array(5)].map((_, i) => (
+                              <div
+                                key={i}
+                                className={cn(
+                                  "h-1 flex-1 rounded-full transition-colors",
+                                  i < passwordStrength ? strengthColors[passwordStrength - 1] : "bg-muted"
+                                )}
+                              />
+                            ))}
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            Strength: {strengthLabels[passwordStrength - 1] || "Very Weak"}
+                          </p>
+                        </div>
+                      )}
+                      {errors.password && <p className="text-xs text-destructive">{errors.password}</p>}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Gender</Label>
+                        <Select
+                          value={signupData.gender}
+                          onValueChange={(value) => setSignupData({ ...signupData, gender: value })}
+                        >
+                          <SelectTrigger className={cn("rounded-xl", errors.gender && "border-destructive")}>
+                            <SelectValue placeholder="Select" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-card">
+                            <SelectItem value="male">Male</SelectItem>
+                            <SelectItem value="female">Female</SelectItem>
+                            <SelectItem value="other">Other</SelectItem>
+                            <SelectItem value="prefer-not">Prefer not to say</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        {errors.gender && <p className="text-xs text-destructive">{errors.gender}</p>}
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Date of Birth</Label>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              className={cn(
+                                "w-full justify-start text-left font-normal rounded-xl",
+                                !signupData.dateOfBirth && "text-muted-foreground",
+                                errors.dateOfBirth && "border-destructive"
+                              )}
+                            >
+                              <CalendarIcon className="mr-2 h-4 w-4" />
+                              {signupData.dateOfBirth ? format(signupData.dateOfBirth, "PP") : "Select date"}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0 bg-card" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={signupData.dateOfBirth}
+                              onSelect={(date) => setSignupData({ ...signupData, dateOfBirth: date })}
+                              disabled={(date) => date > new Date() || date < new Date("1920-01-01")}
+                              initialFocus
+                              className="pointer-events-auto"
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        {errors.dateOfBirth && <p className="text-xs text-destructive">{errors.dateOfBirth}</p>}
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="address">Address</Label>
+                      <div className="relative">
+                        <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="address"
+                          placeholder="City, Country"
+                          value={signupData.address}
+                          onChange={(e) => setSignupData({ ...signupData, address: e.target.value })}
+                          className={cn("pl-10 rounded-xl", errors.address && "border-destructive")}
+                        />
+                      </div>
+                      {errors.address && <p className="text-xs text-destructive">{errors.address}</p>}
+                    </div>
+
+                    <Button
+                      type="submit"
+                      className="w-full rounded-xl bg-primary hover:bg-primary/90 text-white py-6 text-lg mt-6"
+                    >
+                      Continue
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Button>
+
+                    <p className="text-center text-sm text-muted-foreground">
+                      Already have an account?{" "}
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab("login")}
+                        className="text-primary font-medium hover:underline"
+                      >
+                        Login
+                      </button>
+                    </p>
+                  </form>
+                )}
+
+                {/* Step 2: Skills & Profile */}
+                {step === 2 && (
+                  <form onSubmit={handleSignup} className="space-y-5">
+                    <div className="space-y-3">
+                      <Label>Skills <span className="text-muted-foreground text-xs">(Select all that apply)</span></Label>
+                      <div className="flex flex-wrap gap-2">
+                        {SKILLS.map((skill) => (
+                          <button
+                            key={skill}
+                            type="button"
+                            onClick={() => toggleTag(signupData.skills, skill, (arr) => setSignupData({ ...signupData, skills: arr }))}
+                            className={cn(
+                              "px-3 py-1.5 rounded-full text-sm font-medium transition-all border",
+                              signupData.skills.includes(skill)
+                                ? "bg-primary text-white border-primary"
+                                : "bg-muted/50 text-foreground border-border hover:border-primary/50"
+                            )}
+                          >
+                            {signupData.skills.includes(skill) && <Check className="inline h-3 w-3 mr-1" />}
+                            {skill}
+                          </button>
+                        ))}
+                      </div>
+                      {errors.skills && <p className="text-xs text-destructive">{errors.skills}</p>}
+                    </div>
+
+                    <div className="space-y-3">
+                      <Label>Interests <span className="text-muted-foreground text-xs">(Select all that apply)</span></Label>
+                      <div className="flex flex-wrap gap-2">
+                        {INTERESTS.map((interest) => (
+                          <button
+                            key={interest}
+                            type="button"
+                            onClick={() => toggleTag(signupData.interests, interest, (arr) => setSignupData({ ...signupData, interests: arr }))}
+                            className={cn(
+                              "px-3 py-1.5 rounded-full text-sm font-medium transition-all border",
+                              signupData.interests.includes(interest)
+                                ? "bg-secondary text-white border-secondary"
+                                : "bg-muted/50 text-foreground border-border hover:border-secondary/50"
+                            )}
+                          >
+                            {signupData.interests.includes(interest) && <Check className="inline h-3 w-3 mr-1" />}
+                            {interest}
+                          </button>
+                        ))}
+                      </div>
+                      {errors.interests && <p className="text-xs text-destructive">{errors.interests}</p>}
+                    </div>
+
+                    <div className="space-y-3">
+                      <Label>Availability <span className="text-destructive">*</span></Label>
+                      <div className="flex flex-wrap gap-2">
+                        {AVAILABILITY.map((option) => (
+                          <button
+                            key={option.value}
+                            type="button"
+                            onClick={() => toggleTag(signupData.availability, option.value, (arr) => setSignupData({ ...signupData, availability: arr }))}
+                            className={cn(
+                              "px-4 py-2 rounded-xl text-sm font-medium transition-all border",
+                              signupData.availability.includes(option.value)
+                                ? "bg-primary text-white border-primary"
+                                : "bg-muted/50 text-foreground border-border hover:border-primary/50"
+                            )}
+                          >
+                            {signupData.availability.includes(option.value) && <Check className="inline h-3 w-3 mr-1" />}
+                            {option.label}
+                          </button>
+                        ))}
+                      </div>
+                      {errors.availability && <p className="text-xs text-destructive">{errors.availability}</p>}
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="bio">Why do you want to volunteer? <span className="text-destructive">*</span></Label>
+                      <Textarea
+                        id="bio"
+                        placeholder="Tell us a bit about yourself and why you're passionate about volunteering..."
+                        value={signupData.bio}
+                        onChange={(e) => setSignupData({ ...signupData, bio: e.target.value })}
+                        className={cn("rounded-xl min-h-[100px] resize-none", errors.bio && "border-destructive")}
+                        maxLength={500}
+                      />
+                      <p className="text-xs text-muted-foreground text-right">{signupData.bio.length}/500</p>
+                      {errors.bio && <p className="text-xs text-destructive">{errors.bio}</p>}
+                    </div>
+
+                    <div className="flex gap-3 mt-6">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setStep(1)}
+                        className="flex-1 rounded-xl py-6"
+                      >
+                        <ArrowLeft className="mr-2 h-4 w-4" />
+                        Back
+                      </Button>
+                      <Button
+                        type="submit"
+                        className="flex-1 rounded-xl bg-primary hover:bg-primary/90 text-white py-6 text-lg"
+                        disabled={isLoading}
+                      >
+                        {isLoading ? "Creating..." : "Create Account"}
+                      </Button>
+                    </div>
+                  </form>
+                )}
+              </>
+            )}
+          </CardContent>
+        </Card>
+
+        <p className="text-center text-xs text-muted-foreground mt-6">
+          By signing up, you agree to NAMYO Africa's Terms of Service and Privacy Policy
+        </p>
+      </div>
+    </div>
+  );
+};
+
+export default VolunteerAuth;

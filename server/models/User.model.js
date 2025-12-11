@@ -13,7 +13,9 @@ const userSchema = new mongoose.Schema({
     username: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
+        lowercase: true,
+        trim: true
     },
     phone: {
         type: String,
@@ -23,38 +25,76 @@ const userSchema = new mongoose.Schema({
     email: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
+        lowercase: true,
+        trim: true
     },
     password: {
         type: String,
         required: true
     },
+
+    // DATE OF BIRTH (from signup form)
     date_of_birth: {
-        type: Date
-    },
-    skills: {
-        type: String,
+        type: Date,
         required: true
     },
+
+    // MULTIPLE SKILLS FROM SIGNUP
+    skills: {
+        type: [String], // array of strings
+        default: []
+    },
+
+    // OPTIONAL "other" skills text
     other_skills: {
         type: String,
-        required: true
+        default: ""
     },
+
+    // NEW - Interests from signup form
+    interests: {
+        type: [String],
+        default: []
+    },
+
+    // NEW - Availability from signup form
+    availability: {
+        type: [String],
+        default: []
+    },
+
+    // NEW - Bio field from signup form
+    bio: {
+        type: String,
+        default: ""
+    },
+
     gender: {
         type: String,
-        enum: ["male", "female"]
+        enum: ["male", "female"],
+        required: true
     },
+
     address: {
         type: String,
         required: true
     },
+
     role: {
         type: String,
         enum: ["volunteer", "admin", "mobilizer", "chief_mobilizer", "general_mobilizer", "community_lead"],
         default: "volunteer"
     },
+
     no_of_projects_done: {
-        type: Number
+        type: Number,
+        default: 0
+    },
+
+    isApproved: {
+        type: Boolean,
+        default: false
     },
 
     isBanned: {
