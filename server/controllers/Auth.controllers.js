@@ -1,16 +1,15 @@
 import bcrypt from 'bcryptjs';
 import User from '../models/User.model.js';
-import jwt from 'jsonwebtoken';
+import { generateTokenAndCookies } from '../utils/generateTokenAndCookies.js';
 
 
 
 
 export const login = async (req, res) => {
     try {
-
-        const { username, password } = req.body;
-        const userExists = await User.findOne({ username });
-        if (!username || !password) {
+        const { email, password } = req.body;
+        const userExists = await User.findOne({ email });
+        if (!email || !password) {
             return res.status(400).json({ success: false, message: "All fields are required!" });
         }
         if (!userExists) {
@@ -23,12 +22,7 @@ export const login = async (req, res) => {
         if (userExists.isBanned) {
             return res.status(403).json({ success: false, message: "Your account is banned. Contact admin." });
         }
-        const token = jwt.sign(
-            { id: userExists._id, role: userExists.role },
-            process.env.JWT_SECRET,
-            { expiresIn: "1h" }
-        );
-
+        const token = generateTokenAndCookies(res, userExists._id, userExists.role);
 
         res.setHeader("Access-Control-Allow-Credentials", "true");
         res.status(200).json({
@@ -53,7 +47,6 @@ export const login = async (req, res) => {
         });
     }
 }
-
 
 export const register = async (req, res) => {
     try {

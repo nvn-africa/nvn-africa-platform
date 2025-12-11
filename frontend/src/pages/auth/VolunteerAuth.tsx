@@ -13,6 +13,7 @@ import { Heart, ArrowLeft, ArrowRight, Eye, EyeOff, CalendarIcon, Check, Sparkle
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import axios from "axios";
+import { useAuth } from "@/context/AuthContext";
 
 
 
@@ -22,6 +23,7 @@ const VolunteerAuth = () => {
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const { login } = useAuth();
 
 
   const [loginData, setLoginData] = useState({ email: "", password: "" });
@@ -40,22 +42,47 @@ const VolunteerAuth = () => {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrors({});
     setIsLoading(true);
-    setTimeout(() => {
+    try {
+      // Build payload from signupData
+      const payload = {
+        email: loginData.email,
+        password: loginData.password,
+      };
+
+      const response = await axios.post("http://localhost:3000/api/auth/login", payload);
+      console.debug("Login response:", response);
+
+      if (response.data?.success) {
+        login(response.data.user, response.data.token);
+        console.log(response.data.user.role)
+        if (response.data.user.role === "admin") {
+          navigate("/dashboard")
+        } else {
+          navigate("/volunteer")
+        }
+
+      } else {
+        setErrors({ general: response.data?.message || "Login failed" });
+
+      }
+    } catch (error: any) {
+      setErrors({ general: error?.response?.data?.message || "An error occurred during login" });
+      console.error("Login error response:", error?.response ?? error);
+    } finally {
       setIsLoading(false);
-      toast.success("Welcome back!");
-      navigate("/volunteer");
-    }, 1000);
+    }
+
   };
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
     setIsLoading(true);
+
 
     try {
       // Build payload from signupData
@@ -89,13 +116,12 @@ const VolunteerAuth = () => {
     } finally {
       setIsLoading(false);
     }
-    setIsLoading(true);
+
+
     setTimeout(() => {
       setIsLoading(false);
 
     }, 1500);
-
-
   };
 
   const toggleTag = (array: string[], item: string, setter: (arr: string[]) => void) => {
@@ -169,7 +195,11 @@ const VolunteerAuth = () => {
 
           <CardContent className="p-6">
             {/* Login Form */}
+            {errors.general && (
+              <p className="text-red-500 text-sm mt-2">{errors.general}</p>
+            )}
             {activeTab === "login" && (
+
               <form onSubmit={handleLogin} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="login-email">Email</Label>

@@ -15,6 +15,8 @@ import Notifications from "./pages/Notifications";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
+import ProtectedRoutes from './utils/ProtectedRoutes.tsx'
+
 // Auth pages
 import AdminAuth from "./pages/auth/AdminAuth";
 import MobilizerAuth from "./pages/auth/MobilizerAuth";
@@ -49,6 +51,8 @@ import VolunteerNotifications from "./pages/volunteer/VolunteerNotifications";
 import VolunteerProfile from "./pages/volunteer/VolunteerProfile";
 import VolunteerSettings from "./pages/volunteer/VolunteerSettings";
 
+import GuestRoutes from './utils/GuestRoutes'
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -59,25 +63,47 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          
+
           {/* Auth Routes */}
-          <Route path="/admin/auth" element={<AdminAuth />} />
-          <Route path="/mobilizer/auth" element={<MobilizerAuth />} />
-          <Route path="/volunteer/auth" element={<VolunteerAuth />} />
+          <Route
+            path="/admin/auth"
+            element={
+              <GuestRoutes>
+                <AdminAuth />
+              </GuestRoutes>
+            } />
+          <Route path="/mobilizer/auth" element={
+            <GuestRoutes>
+              <MobilizerAuth />
+            </GuestRoutes>
+          } />
+          <Route path="/volunteer/auth" element={
+            <GuestRoutes>
+              <VolunteerAuth />
+            </GuestRoutes>
+          } />
           <Route path="/pending-approval" element={<PendingApprovalPage />} />
-          
+
           {/* Admin Dashboard Routes */}
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/users" element={<UserManagement />} />
-          <Route path="/volunteers" element={<Volunteers />} />
-          <Route path="/volunteers/:id" element={<VolunteerDetails />} />
+
+          <Route element={<ProtectedRoutes requiredRole={["admin"]} />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/users" element={<UserManagement />} />
+            <Route path="/volunteers" element={<Volunteers />} />
+            <Route path="/volunteers/:id" element={<VolunteerDetails />} />
+            <Route path="/requests" element={<Requests />} />
+            <Route path="/performance" element={<Performance />} />
+            <Route path="/notifications" element={<Notifications />} />
+          </Route>
+
+
+
           <Route path="/projects" element={<Projects />} />
           <Route path="/projects/:id" element={<ProjectDetails />} />
-          <Route path="/requests" element={<Requests />} />
-          <Route path="/performance" element={<Performance />} />
-          <Route path="/notifications" element={<Notifications />} />
+
+
           <Route path="/settings" element={<Settings />} />
-          
+
           {/* Mobilizer Dashboard Routes */}
           <Route path="/mobilizer" element={<MobilizerLayout />}>
             <Route index element={<MobilizerDashboard />} />
@@ -93,18 +119,22 @@ const App = () => (
             <Route path="settings" element={<MobilizerSettings />} />
             <Route path="performance" element={<MobilizerPerformance />} />
           </Route>
-          
+
           {/* Volunteer Dashboard Routes */}
-          <Route path="/volunteer" element={<VolunteerLayout />}>
-            <Route index element={<VolunteerDashboard />} />
-            <Route path="projects" element={<VolunteerProjects />} />
-            <Route path="projects/:id" element={<VolunteerProjectDetails />} />
-            <Route path="my-projects" element={<VolunteerMyProjects />} />
-            <Route path="notifications" element={<VolunteerNotifications />} />
-            <Route path="profile" element={<VolunteerProfile />} />
-            <Route path="settings" element={<VolunteerSettings />} />
+          <Route element={<ProtectedRoutes requiredRole={["volunteer"]} />}>
+            <Route path="/volunteer" element={<VolunteerLayout />}>
+              <Route index element={<VolunteerDashboard />} />
+              <Route path="projects" element={<VolunteerProjects />} />
+              <Route path="projects/:id" element={<VolunteerProjectDetails />} />
+              <Route path="my-projects" element={<VolunteerMyProjects />} />
+              <Route path="notifications" element={<VolunteerNotifications />} />
+              <Route path="profile" element={<VolunteerProfile />} />
+              <Route path="settings" element={<VolunteerSettings />} />
+            </Route>
           </Route>
-          
+
+
+
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
