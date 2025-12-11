@@ -25,20 +25,20 @@ const AdminAuth = () => {
     }, 1000);
   };
 
-  const handleSignup = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (signupData.password !== signupData.confirmPassword) {
-      toast.error("Passwords do not match");
-      return;
-    }
-    setIsLoading(true);
-    // TODO: Implement actual authentication with Lovable Cloud
-    setTimeout(() => {
-      setIsLoading(false);
-      toast.success("Registration submitted!");
-      navigate("/pending-approval?type=admin&email=" + encodeURIComponent(signupData.email));
-    }, 1000);
-  };
+  // const handleSignup = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   if (signupData.password !== signupData.confirmPassword) {
+  //     toast.error("Passwords do not match");
+  //     return;
+  //   }
+  //   setIsLoading(true);
+  //   // TODO: Implement actual authentication with Lovable Cloud
+  //   setTimeout(() => {
+  //     setIsLoading(false);
+  //     toast.success("Registration submitted!");
+  //     navigate("/pending-approval?type=admin&email=" + encodeURIComponent(signupData.email));
+  //   }, 1000);
+  // };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/10 flex items-center justify-center p-4">
@@ -61,7 +61,7 @@ const AdminAuth = () => {
             <CardDescription>NAMYO Africa Administration</CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="login" className="w-full">
+            {/* <Tabs defaultValue="login" className="w-full">
               <TabsList className="grid w-full grid-cols-2 mb-6">
                 <TabsTrigger value="login">Login</TabsTrigger>
                 <TabsTrigger value="signup">Sign Up</TabsTrigger>
@@ -148,7 +148,34 @@ const AdminAuth = () => {
                   </Button>
                 </form>
               </TabsContent>
-            </Tabs>
+            </Tabs> */}
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="login-email">Email</Label>
+                <Input
+                  id="login-email"
+                  type="email"
+                  placeholder="admin@namyo.org"
+                  value={loginData.email}
+                  onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="login-password">Password</Label>
+                <Input
+                  id="login-password"
+                  type="password"
+                  placeholder="••••••••"
+                  value={loginData.password}
+                  onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
+                  required
+                />
+              </div>
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? "Signing in..." : "Sign In"}
+              </Button>
+            </form>
           </CardContent>
         </Card>
       </div>
