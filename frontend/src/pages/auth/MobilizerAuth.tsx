@@ -61,7 +61,7 @@ const MobilizerAuth = () => {
             <CardDescription>NAMYO Africa Mobilizer Access</CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="login" className="w-full">
+            {/* <Tabs defaultValue="login" className="w-full">
               <TabsList className="grid w-full grid-cols-2 mb-6">
                 <TabsTrigger value="login" className="data-[state=active]:bg-mobilizer-primary data-[state=active]:text-white">Login</TabsTrigger>
                 <TabsTrigger value="signup" className="data-[state=active]:bg-mobilizer-primary data-[state=active]:text-white">Sign Up</TabsTrigger>
@@ -99,7 +99,7 @@ const MobilizerAuth = () => {
                 </form>
               </TabsContent>
 
-              <TabsContent value="signup">
+<TabsContent value="signup">
                 <form onSubmit={handleSignup} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="signup-name">Full Name</Label>
@@ -154,7 +154,36 @@ const MobilizerAuth = () => {
                   </Button>
                 </form>
               </TabsContent>
-            </Tabs>
+            </Tabs> */}
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="login-email">Email</Label>
+                <Input
+                  id="login-email"
+                  type="email"
+                  placeholder="mobilizer@namyo.org"
+                  value={loginData.email}
+                  onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
+                  required
+                  className="focus-visible:ring-mobilizer-primary"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="login-password">Password</Label>
+                <Input
+                  id="login-password"
+                  type="password"
+                  placeholder="••••••••"
+                  value={loginData.password}
+                  onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
+                  required
+                  className="focus-visible:ring-mobilizer-primary"
+                />
+              </div>
+              <Button type="submit" className="w-full bg-mobilizer-primary hover:bg-mobilizer-secondary" disabled={isLoading}>
+                {isLoading ? "Signing in..." : "Sign In"}
+              </Button>
+            </form>
           </CardContent>
         </Card>
       </div>
