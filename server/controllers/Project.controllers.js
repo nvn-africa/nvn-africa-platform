@@ -456,3 +456,92 @@ export const my_approved_projects = async (req, res) => {
 }
 
 
+
+export const getStats = async (req, res) => {
+    try {
+        // Active volunteers (approved + not banned)
+        const activeVolunteersQuery = {
+            role: "volunteer",
+            isBanned: { $ne: true },
+        };
+
+        // If the User model uses isApproved, include it
+        if (Object.prototype.hasOwnProperty.call(User.schema.paths, "isApproved")) {
+            activeVolunteersQuery.isApproved = true;
+        }
+
+        const activeVolunteersPromise = User.countDocuments(activeVolunteersQuery);
+
+        // Completed projects
+        const projectsCompletedPromise = Project.countDocuments({ status: "completed" });
+
+        // Total projects
+        const totalProjectsPromise = Project.countDocuments();
+
+        // Total project requests
+        const totalRequestsPromise = ProjectRequest.countDocuments();
+
+        // Pending requests (status == "pending")
+        const pendingRequestsPromise = ProjectRequest.countDocuments({ status: "pending" });
+
+        // Distinct communities reached
+        const communitiesFromProjectsPromise = Project.distinct("community", {
+            community: { $exists: true, $ne: "" }
+        });
+
+        // Sum of all beneficiaries
+        const livesImpactedPromise = Project.aggregate([
+            { $match: { beneficiariesCount: { $exists: true, $gt: 0 } } },
+            { $group: { _id: null, total: { $sum: "$beneficiariesCount" } } },
+        ]);
+
+        // Run all queries in parallel
+        const [
+            activeVolunteers,
+            projectsCompleted,
+            totalProjects,
+            totalRequests,
+            pendingRequests,
+            communitiesFromProjects,
+            livesImpactedAgg,
+        ] = await Promise.all([
+            activeVolunteersPromise,
+            projectsCompletedPromise,
+            totalProjectsPromise,
+            totalRequestsPromise,
+            pendingRequestsPromise,
+            communitiesFromProjectsPromise,
+            livesImpactedPromise
+        ]);
+
+        const communitiesReached = Array.isArray(communitiesFromProjects)
+            ? communitiesFromProjects.length
+            : 0;
+
+        const livesImpacted =
+            Array.isArray(livesImpactedAgg) && livesImpactedAgg[0]?.total
+                ? livesImpactedAgg[0].total
+                : 0;
+
+        return res.status(200).json({
+            success: true,
+            data: {
+                activeVolunteers,
+                projectsCompleted,
+                totalProjects,
+                totalRequests,
+                pendingRequests,
+                communitiesReached,
+                livesImpacted
+            }
+        });
+
+    } catch (error) {
+        console.error("Stats aggregation error:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Failed to fetch stats",
+            error: error.message
+        });
+    }
+};

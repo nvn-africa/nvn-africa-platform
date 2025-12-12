@@ -17,45 +17,48 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 
-const projects = [
-  {
-    id: 1,
-    name: 'Youth Education Initiative',
-    status: 'active',
-    startDate: '2024-01-15',
-    endDate: '2024-06-30',
-    lead: { name: 'Sarah Johnson', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100' },
-    volunteers: 24,
-  },
-  {
-    id: 2,
-    name: 'Community Health Outreach',
-    status: 'completed',
-    startDate: '2023-09-01',
-    endDate: '2024-02-28',
-    lead: { name: 'Michael Chen', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100' },
-    volunteers: 18,
-  },
-  {
-    id: 3,
-    name: 'Environmental Cleanup',
-    status: 'pending',
-    startDate: '2024-03-01',
-    endDate: '2024-05-15',
-    lead: { name: 'Amara Okonkwo', avatar: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=100' },
-    volunteers: 32,
-  },
-  {
-    id: 4,
-    name: 'Tech Skills Workshop',
-    status: 'active',
-    startDate: '2024-02-01',
-    endDate: '2024-08-31',
-    lead: { name: 'David Mensah', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100' },
-    volunteers: 15,
-  },
-];
+
+// const projects = [
+//   {
+//     id: 1,
+//     name: 'Youth Education Initiative',
+//     status: 'active',
+//     startDate: '2024-01-15',
+//     endDate: '2024-06-30',
+//     lead: { name: 'Sarah Johnson', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100' },
+//     volunteers: 24,
+//   },
+//   {
+//     id: 2,
+//     name: 'Community Health Outreach',
+//     status: 'completed',
+//     startDate: '2023-09-01',
+//     endDate: '2024-02-28',
+//     lead: { name: 'Michael Chen', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100' },
+//     volunteers: 18,
+//   },
+//   {
+//     id: 3,
+//     name: 'Environmental Cleanup',
+//     status: 'pending',
+//     startDate: '2024-03-01',
+//     endDate: '2024-05-15',
+//     lead: { name: 'Amara Okonkwo', avatar: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=100' },
+//     volunteers: 32,
+//   },
+//   {
+//     id: 4,
+//     name: 'Tech Skills Workshop',
+//     status: 'active',
+//     startDate: '2024-02-01',
+//     endDate: '2024-08-31',
+//     lead: { name: 'David Mensah', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100' },
+//     volunteers: 15,
+//   },
+// ];
 
 const statusColors: Record<string, string> = {
   active: 'bg-success/10 text-success border-success/20',
@@ -70,7 +73,40 @@ interface ProjectsTableProps {
 
 export function ProjectsTable({ onViewProject, onEditProject }: ProjectsTableProps) {
   const navigate = useNavigate();
-  
+  const [projects, setProjects] = useState([]);
+
+  useEffect(() => {
+    const token = localStorage.getItem("inv-token");
+
+
+    const fetchProjects = async () => {
+      try {
+
+
+        // 🟢 Online: Fetch fresh data
+        const response = await axios.get(`localhost:3000/api/project/`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (response.data.projects) {
+          setProjects(response.data.projects);
+          localStorage.setItem(
+            "cachedProjects",
+            JSON.stringify(response.data.projects)
+          );
+          console.log("✅ projects cached locally");
+        }
+      } catch (error) {
+        console.error("Error fetching projects:", error);
+      }
+    };
+
+
+
+    fetchProjects();
+
+  }, [])
+
   return (
     <div className="rounded-xl bg-card card-shadow overflow-hidden">
       <Table>
@@ -86,8 +122,8 @@ export function ProjectsTable({ onViewProject, onEditProject }: ProjectsTablePro
         </TableHeader>
         <TableBody>
           {projects.map((project) => (
-            <TableRow 
-              key={project.id} 
+            <TableRow
+              key={project.id}
               className="hover:bg-muted/30 transition-colors cursor-pointer"
               onClick={() => navigate(`/projects/${project.id}`)}
             >

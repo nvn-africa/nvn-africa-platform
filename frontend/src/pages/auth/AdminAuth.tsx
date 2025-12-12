@@ -7,21 +7,52 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Shield, ArrowLeft } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import axios from "axios";
 
 const AdminAuth = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [loginData, setLoginData] = useState({ email: "", password: "" });
+  
+
+  const { login } = useAuth();
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrors({});
     setIsLoading(true);
-    // TODO: Implement actual authentication with Lovable Cloud
-    setTimeout(() => {
+    try {
+      // Build payload from signupData
+      const payload = {
+        email: loginData.email,
+        password: loginData.password,
+      };
+
+      const response = await axios.post("http://localhost:3000/api/auth/login", payload);
+      console.debug("Login response:", response);
+
+      if (response.data?.success) {
+        login(response.data.user, response.data.token);
+        console.log(response.data.user.role)
+        if (response.data.user.role === "admin") {
+          navigate("/dashboard")
+        } else {
+          navigate("/volunteer")
+        }
+
+      } else {
+        setErrors({ general: response.data?.message || "Login failed" });
+
+      }
+    } catch (error: any) {
+      setErrors({ general: error?.response?.data?.message || "An error occurred during login" });
+      console.error("Login error response:", error?.response ?? error);
+    } finally {
       setIsLoading(false);
-      toast.success("Login successful!");
-      navigate("/dashboard");
-    }, 1000);
+    }
+
   };
 
 

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   Users,
@@ -14,6 +14,30 @@ import {
   UserCheck,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuth } from "@/context/AuthContext";
+import { useToast } from '@/hooks/use-toast';
+
+
+
+const handleLogout = () => {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  // clear client-side auth state
+  try {
+    // If you set axios.defaults.headers.common["Authorization"], clear it
+    // delete axios.defaults.headers.common["Authorization"];
+
+    logout();                // clears context + localStorage
+    toast({                  // optional friendly UI feedback
+      title: "Signed out",
+      description: "You have been logged out.",
+    });
+    navigate("/");           // send user to homepage (or /login)
+  } catch (err) {
+    console.error("Logout error:", err);
+  }
+};
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
@@ -95,10 +119,11 @@ export function Sidebar() {
 
       {/* Logout */}
       <div className="p-3 border-t border-sidebar-border">
-        <button className="flex items-center gap-3 w-full px-3 py-3 rounded-lg text-sidebar-foreground hover:bg-destructive/20 hover:text-destructive transition-colors">
+        <button onClick={handleLogout} >
           <LogOut className={cn('w-5 h-5', collapsed && 'mx-auto')} />
           {!collapsed && <span className="font-medium">Logout</span>}
         </button>
+
       </div>
     </aside>
   );

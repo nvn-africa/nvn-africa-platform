@@ -1,7 +1,7 @@
 import express from "express";
 import { verifyToken } from "../middleware/protected.js";
 import { authorizeRole } from "../middleware/roleMiddleware.js";
-import { approved_request, completed_project, create_project, delete_project, my_approved_projects, ongoing_project, project_request, rejected_request, upcoming_project, update_project, view_all_approved_project_requests, view_all_project, view_all_project_requests, view_all_rejected_project_requests, view_my_created_project } from "../controllers/Project.controllers.js";
+import { approved_request, completed_project, create_project, delete_project, getStats, my_approved_projects, ongoing_project, project_request, rejected_request, upcoming_project, update_project, view_all_approved_project_requests, view_all_project, view_all_project_requests, view_all_rejected_project_requests, view_my_created_project } from "../controllers/Project.controllers.js";
 
 const router = express.Router()
 
@@ -29,5 +29,6 @@ router.post("/project-request/:id", verifyToken, authorizeRole("volunteer"), pro
 router.put("/approve-project-request/:id", verifyToken, authorizeRole("admin"), approved_request)
 router.put("/reject-project-request/:id", verifyToken, authorizeRole("admin"), rejected_request)
 
+router.get("/stats", getStats);
 
 export default router;

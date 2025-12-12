@@ -16,12 +16,9 @@ const projectSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
     },
+    community: { type: String, default: "" },
 
-    location: {
-        type: String,
-        required: true
-    },
-
+    beneficiariesCount: { type: Number, default: 0 },
 
     status: {
         type: String,
@@ -41,7 +38,7 @@ const projectSchema = new mongoose.Schema({
     requirements: [String],
     neededVolunteers: Number,
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    images: [String],
+    volunteers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
 
 }, { timestamps: true })
 

@@ -7,12 +7,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  Users, 
-  FolderKanban, 
-  TrendingUp, 
-  Globe, 
-  Heart, 
+import {
+  Users,
+  FolderKanban,
+  TrendingUp,
+  Globe,
+  Heart,
   Award,
   ArrowRight,
   CheckCircle,
@@ -20,6 +20,8 @@ import {
   Send,
   Mail
 } from 'lucide-react';
+import { useAuth } from "@/context/AuthContext";
+import { format } from "date-fns";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -32,10 +34,13 @@ const Index = () => {
     message: ''
   });
 
+  // IMPORTANT: destructure user from useAuth()
+  const { user } = useAuth();
+
   const handleContactSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     // Simulate form submission
     setTimeout(() => {
       toast({
@@ -78,6 +83,54 @@ const Index = () => {
     { icon: Globe, label: 'Environment' }
   ];
 
+  // maps a user role to a dashboard path
+  const goToDashboard = () => {
+    if (!user) {
+      navigate('/');
+      return;
+    }
+
+    const role = (user.role || '').toString().toLowerCase();
+    console.log(role, "ROLE");
+
+    switch (role) {
+      case 'volunteer':
+        navigate('/volunteer');
+        break;
+      case 'mobilizer':
+      case 'general_mobilizer':
+      case 'chief_mobilizer':
+        navigate('/mobilizer');
+        break;
+      case 'admin':
+        navigate('/dashboard');
+        break;
+      // case 'community_lead':
+      //   navigate('/community');
+      //   break;
+      default:
+        navigate('/dashboard');
+    }
+  };
+  const { logout } = useAuth();
+
+  const handleLogout = () => {
+    // clear client-side auth state
+    try {
+      // If you set axios.defaults.headers.common["Authorization"], clear it
+      // delete axios.defaults.headers.common["Authorization"];
+
+      logout();                // clears context + localStorage
+      toast({                  // optional friendly UI feedback
+        title: "Signed out",
+        description: "You have been logged out.",
+      });
+      navigate("/");           // send user to homepage (or /login)
+    } catch (err) {
+      console.error("Logout error:", err);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background overflow-hidden">
       {/* Navigation */}
@@ -100,16 +153,48 @@ const Index = () => {
               <a href="#contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Contact</a>
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="outline" onClick={() => navigate('/volunteer/auth')} className="border-volunteer-primary text-volunteer-primary hover:bg-volunteer-primary hover:text-white">
-                Volunteer Portal
-              </Button>
-              <Button variant="outline" onClick={() => navigate('/mobilizer/auth')} className="border-mobilizer-primary text-mobilizer-primary hover:bg-mobilizer-primary hover:text-white">
-                Mobilizer Portal
-              </Button>
-              <Button onClick={() => navigate('/admin/auth')} className="gradient-primary">
-                Admin Portal
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
+              {user ? (
+                // IF USER IS LOGGED IN: single Dashboard button
+                <>
+                  <Button
+                    onClick={goToDashboard}
+                    className="gradient-primary"
+                  >
+                    {user.firstname || user.username ? `Dashboard — ${user.firstname || user.username}` : 'Go to Dashboard'}
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                  <Button variant="ghost" onClick={handleLogout} className="text-destructive/80 hover:text-destructive">
+                    Logout
+                  </Button>
+                </>
+              ) : (
+                // IF USER IS NOT LOGGED IN: show portal buttons
+                <>
+                  <Button
+                    variant="outline"
+                    onClick={() => navigate('/volunteer/auth')}
+                    className="border-volunteer-primary text-volunteer-primary hover:bg-volunteer-primary hover:text-white"
+                  >
+                    Volunteer Portal
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    onClick={() => navigate('/mobilizer/auth')}
+                    className="border-mobilizer-primary text-mobilizer-primary hover:bg-mobilizer-primary hover:text-white"
+                  >
+                    Mobilizer Portal
+                  </Button>
+
+                  <Button
+                    onClick={() => navigate('/admin/auth')}
+                    className="gradient-primary"
+                  >
+                    Admin Portal
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -122,7 +207,7 @@ const Index = () => {
           <div className="absolute -top-40 -right-40 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
           <div className="absolute top-1/2 -left-40 w-80 h-80 bg-accent/10 rounded-full blur-3xl" />
         </div>
-        
+
         <div className="max-w-7xl mx-auto relative">
           <div className="text-center max-w-4xl mx-auto animate-fade-in">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full text-primary text-sm font-medium mb-8">
@@ -136,21 +221,21 @@ const Index = () => {
               <span className="text-primary">Mobilization</span>
             </h1>
             <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10">
-              NAMYO Africa connects passionate volunteers with impactful community projects, 
+              NAMYO Africa connects passionate volunteers with impactful community projects,
               creating lasting change across the continent.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button 
-                size="lg" 
+              <Button
+                size="lg"
                 className="gradient-primary text-lg px-8 py-6 hover-scale"
                 onClick={() => navigate('/admin/auth')}
               >
                 Access Dashboard
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
-              <Button 
-                variant="outline" 
-                size="lg" 
+              <Button
+                variant="outline"
+                size="lg"
                 className="text-lg px-8 py-6"
                 onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
               >
@@ -162,8 +247,8 @@ const Index = () => {
           {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-20">
             {stats.map((stat, index) => (
-              <Card 
-                key={stat.label} 
+              <Card
+                key={stat.label}
                 className="bg-card/50 backdrop-blur border-border/50 animate-fade-in"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
@@ -192,8 +277,8 @@ const Index = () => {
 
           <div className="grid md:grid-cols-3 gap-8">
             {features.map((feature, index) => (
-              <Card 
-                key={feature.title} 
+              <Card
+                key={feature.title}
                 className="bg-card border-border hover:border-primary/50 transition-all duration-300 hover-scale animate-fade-in"
                 style={{ animationDelay: `${index * 150}ms` }}
               >
@@ -221,7 +306,7 @@ const Index = () => {
                 Across Africa
               </h2>
               <p className="text-lg text-muted-foreground mb-8">
-                Our volunteer-driven initiatives span across healthcare, education, and environmental 
+                Our volunteer-driven initiatives span across healthcare, education, and environmental
                 sustainability, empowering communities and transforming lives.
               </p>
               <div className="space-y-4">
@@ -242,8 +327,8 @@ const Index = () => {
             </div>
             <div className="grid grid-cols-3 gap-4">
               {impactAreas.map((area, index) => (
-                <Card 
-                  key={area.label} 
+                <Card
+                  key={area.label}
                   className="bg-card border-border hover:border-primary/50 transition-all duration-300 animate-fade-in"
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
@@ -268,13 +353,13 @@ const Index = () => {
             <span className="text-primary">NAMYO Africa</span>
           </h2>
           <p className="text-lg text-muted-foreground mb-8">
-            NAMYO Africa is a youth-led organization dedicated to mobilizing young people across 
-            the continent to drive positive social change. Through our network of passionate volunteers, 
-            we implement community projects that address critical challenges in healthcare, education, 
+            NAMYO Africa is a youth-led organization dedicated to mobilizing young people across
+            the continent to drive positive social change. Through our network of passionate volunteers,
+            we implement community projects that address critical challenges in healthcare, education,
             and environmental sustainability.
           </p>
           <p className="text-lg text-muted-foreground">
-            Our mission is to empower African youth to become agents of change in their communities, 
+            Our mission is to empower African youth to become agents of change in their communities,
             building a brighter and more sustainable future for generations to come.
           </p>
         </div>
@@ -289,7 +374,7 @@ const Index = () => {
                 Get in <span className="text-primary">Touch</span>
               </h2>
               <p className="text-lg text-muted-foreground mb-8">
-                Have questions about our programs or interested in partnering with us? 
+                Have questions about our programs or interested in partnering with us?
                 We'd love to hear from you. Fill out the form and our team will get back to you shortly.
               </p>
               <div className="space-y-6">
@@ -313,7 +398,7 @@ const Index = () => {
                 </div>
               </div>
             </div>
-            
+
             <Card className="bg-card border-border">
               <CardContent className="p-6 sm:p-8">
                 <form onSubmit={handleContactSubmit} className="space-y-6">
@@ -340,11 +425,11 @@ const Index = () => {
                       />
                     </div>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label htmlFor="inquiryType">Inquiry Type</Label>
-                    <Select 
-                      value={contactForm.inquiryType} 
+                    <Select
+                      value={contactForm.inquiryType}
                       onValueChange={(value) => setContactForm({ ...contactForm, inquiryType: value })}
                     >
                       <SelectTrigger>
@@ -359,7 +444,7 @@ const Index = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label htmlFor="message">Message</Label>
                     <Textarea
@@ -371,9 +456,9 @@ const Index = () => {
                       required
                     />
                   </div>
-                  
-                  <Button 
-                    type="submit" 
+
+                  <Button
+                    type="submit"
                     className="w-full gradient-primary"
                     disabled={isSubmitting}
                   >
@@ -409,8 +494,8 @@ const Index = () => {
                 <p className="text-lg text-primary-foreground/80 max-w-2xl mx-auto mb-8">
                   Join our network of volunteers and project managers to create lasting impact in communities across Africa.
                 </p>
-                <Button 
-                  size="lg" 
+                <Button
+                  size="lg"
                   variant="secondary"
                   className="text-lg px-8 py-6 hover-scale"
                   onClick={() => navigate('/volunteer/auth')}
