@@ -175,24 +175,10 @@ const Index = () => {
                     onClick={() => navigate('/volunteer/auth')}
                     className="border-volunteer-primary text-volunteer-primary hover:bg-volunteer-primary hover:text-white"
                   >
-                    Volunteer Portal
+                    Join Us
                   </Button>
 
-                  <Button
-                    variant="outline"
-                    onClick={() => navigate('/mobilizer/auth')}
-                    className="border-mobilizer-primary text-mobilizer-primary hover:bg-mobilizer-primary hover:text-white"
-                  >
-                    Mobilizer Portal
-                  </Button>
 
-                  <Button
-                    onClick={() => navigate('/admin/auth')}
-                    className="gradient-primary"
-                  >
-                    Admin Portal
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
                 </>
               )}
             </div>
@@ -228,9 +214,9 @@ const Index = () => {
               <Button
                 size="lg"
                 className="gradient-primary text-lg px-8 py-6 hover-scale"
-                onClick={() => navigate('/admin/auth')}
+                onClick={() => navigate('/admin/volunteers')}
               >
-                Access Dashboard
+                Join Us
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
               <Button
