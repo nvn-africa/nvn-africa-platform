@@ -159,3 +159,17 @@ export const user_profile = async (req, res) => {
     }
 }
 
+
+export const view_all_users = async (req, res) => {
+    try {
+        const all_users = await User.find().sort({ createdAt: -1 });;
+        return res.status(200).json({
+            success: true,
+            message: "All users fetched successfully",
+            count: all_users.length,
+            data: all_users
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Error in view_all_users controller", error: error.message });
+    }
+}

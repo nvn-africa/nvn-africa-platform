@@ -1,11 +1,20 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Search, Filter, MoreHorizontal, Eye, Mail, UserX } from 'lucide-react';
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import {
+  Search,
+  Filter,
+  MoreHorizontal,
+  Eye,
+  Mail,
+  UserX,
+} from "lucide-react";
+
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Table,
   TableBody,
@@ -13,104 +22,111 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from "@/components/ui/table";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from "@/components/ui/dropdown-menu";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 
-const volunteers = [
-  {
-    id: 1,
-    name: 'Fatima Diallo',
-    email: 'fatima.diallo@email.com',
-    phone: '+234 801 234 5678',
-    location: 'Lagos, Nigeria',
-    avatar: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=100',
-    status: 'active' as const,
-    joinDate: '2023-06-15',
-    skills: ['Teaching', 'French', 'Community Outreach'],
-    projects: ['Youth Education Initiative', 'Community Health Outreach'],
-    hoursContributed: 156,
-  },
-  {
-    id: 2,
-    name: 'Kwame Asante',
-    email: 'kwame.asante@email.com',
-    phone: '+233 24 123 4567',
-    location: 'Accra, Ghana',
-    avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100',
-    status: 'active' as const,
-    joinDate: '2023-08-22',
-    skills: ['Logistics', 'Leadership', 'Event Planning'],
-    projects: ['Environmental Cleanup'],
-    hoursContributed: 89,
-  },
-  {
-    id: 3,
-    name: 'Aisha Mohammed',
-    email: 'aisha.m@email.com',
-    phone: '+254 712 345 678',
-    location: 'Nairobi, Kenya',
-    avatar: 'https://images.unsplash.com/photo-1489424731084-a5d8b219a5bb?w=100',
-    status: 'inactive' as const,
-    joinDate: '2023-03-10',
-    skills: ['Programming', 'Mentoring', 'Data Analysis'],
-    projects: ['Tech Skills Workshop'],
-    hoursContributed: 234,
-  },
-  {
-    id: 4,
-    name: 'Emmanuel Obi',
-    email: 'emmanuel.obi@email.com',
-    phone: '+234 803 456 7890',
-    location: 'Abuja, Nigeria',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100',
-    status: 'active' as const,
-    joinDate: '2024-01-05',
-    skills: ['Healthcare', 'First Aid', 'Counseling'],
-    projects: ['Community Health Outreach'],
-    hoursContributed: 45,
-  },
-  {
-    id: 5,
-    name: 'Grace Mwangi',
-    email: 'grace.mwangi@email.com',
-    phone: '+254 723 456 789',
-    location: 'Mombasa, Kenya',
-    avatar: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=100',
-    status: 'active' as const,
-    joinDate: '2023-11-18',
-    skills: ['Photography', 'Social Media', 'Marketing'],
-    projects: ['Youth Education Initiative', 'Environmental Cleanup'],
-    hoursContributed: 112,
-  },
-];
+/* ================= TYPES ================= */
+
+interface Volunteer {
+  _id: string;
+  firstname: string;
+  lastname: string;
+  email: string;
+  phone: string;
+  address: string;
+  role: string;
+  skills: string[];
+  isApproved: boolean;
+  isBanned: boolean;
+}
+
+/* ================= COMPONENT ================= */
 
 export default function Volunteers() {
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
+
+  const [volunteers, setVolunteers] = useState<Volunteer[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+
+  /* ================= FETCH VOLUNTEERS ================= */
+
+  useEffect(() => {
+    const fetchVolunteers = async () => {
+      try {
+        const token = localStorage.getItem("inv-token");
+        const res = await axios.get(
+          "http://localhost:3000/api/user/all",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        // only volunteers
+        const onlyVolunteers = res.data.data.filter(
+          (u: Volunteer) => u.role === "volunteer"
+        );
+
+        setVolunteers(onlyVolunteers);
+      } catch (err) {
+        console.error("Failed to fetch volunteers", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchVolunteers();
+  }, []);
+
+  /* ================= FILTERING ================= */
 
   const filteredVolunteers = volunteers.filter((v) => {
-    const matchesSearch = v.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    const fullName = `${v.firstname} ${v.lastname}`.toLowerCase();
+
+    const matchesSearch =
+      fullName.includes(searchQuery.toLowerCase()) ||
       v.email.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || v.status === statusFilter;
+
+    const status =
+      v.isBanned ? "inactive" : v.isApproved ? "active" : "inactive";
+
+    const matchesStatus =
+      statusFilter === "all" || status === statusFilter;
+
     return matchesSearch && matchesStatus;
   });
 
+  if (loading) {
+    return (
+      <DashboardLayout title="Volunteers">
+        <p>Loading volunteers...</p>
+      </DashboardLayout>
+    );
+  }
+
+  /* ================= STATS ================= */
+
+  const activeCount = volunteers.filter(
+    (v) => !v.isBanned && v.isApproved
+  ).length;
+
   return (
     <DashboardLayout title="Volunteers">
-      {/* Filters */}
+      {/* ================= FILTERS ================= */}
+
       <div className="flex flex-col sm:flex-row gap-4 mb-6">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -121,130 +137,148 @@ export default function Volunteers() {
             className="pl-9"
           />
         </div>
+
         <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="w-full sm:w-40">
             <Filter className="w-4 h-4 mr-2" />
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="all">All</SelectItem>
             <SelectItem value="active">Active</SelectItem>
             <SelectItem value="inactive">Inactive</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
-      {/* Stats Summary */}
+      {/* ================= STATS ================= */}
+
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div className="rounded-xl bg-card card-shadow p-4">
-          <p className="text-sm text-muted-foreground">Total Volunteers</p>
-          <p className="text-2xl font-bold text-foreground">{volunteers.length}</p>
-        </div>
-        <div className="rounded-xl bg-card card-shadow p-4">
-          <p className="text-sm text-muted-foreground">Active</p>
-          <p className="text-2xl font-bold text-success">{volunteers.filter(v => v.status === 'active').length}</p>
-        </div>
-        <div className="rounded-xl bg-card card-shadow p-4">
-          <p className="text-sm text-muted-foreground">Total Hours</p>
-          <p className="text-2xl font-bold text-primary">{volunteers.reduce((acc, v) => acc + v.hoursContributed, 0)}</p>
-        </div>
-        <div className="rounded-xl bg-card card-shadow p-4">
-          <p className="text-sm text-muted-foreground">Avg Hours/Volunteer</p>
-          <p className="text-2xl font-bold text-foreground">
-            {Math.round(volunteers.reduce((acc, v) => acc + v.hoursContributed, 0) / volunteers.length)}
-          </p>
-        </div>
+        <Stat title="Total Volunteers" value={volunteers.length} />
+        <Stat title="Active" value={activeCount} />
+        <Stat title="Inactive" value={volunteers.length - activeCount} />
+        <Stat title="Avg Hours" value="—" />
       </div>
 
-      {/* Volunteers Table */}
+      {/* ================= TABLE ================= */}
+
       <div className="rounded-xl bg-card card-shadow overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow className="bg-muted/50 hover:bg-muted/50">
-              <TableHead className="font-semibold">Volunteer</TableHead>
-              <TableHead className="font-semibold hidden md:table-cell">Location</TableHead>
-              <TableHead className="font-semibold hidden lg:table-cell">Skills</TableHead>
-              <TableHead className="font-semibold hidden sm:table-cell">Status</TableHead>
-              <TableHead className="font-semibold hidden lg:table-cell">Hours</TableHead>
-              <TableHead className="font-semibold text-right">Actions</TableHead>
+            <TableRow className="bg-muted/50">
+              <TableHead>Volunteer</TableHead>
+              <TableHead className="hidden md:table-cell">Location</TableHead>
+              <TableHead className="hidden lg:table-cell">Skills</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
+
           <TableBody>
-            {filteredVolunteers.map((volunteer) => (
-              <TableRow 
-                key={volunteer.id} 
-                className="hover:bg-muted/30 transition-colors cursor-pointer"
-                onClick={() => navigate(`/volunteers/${volunteer.id}`)}
-              >
-                <TableCell>
-                  <div className="flex items-center gap-3">
-                    <Avatar className="w-10 h-10">
-                      <AvatarImage src={volunteer.avatar} />
-                      <AvatarFallback>{volunteer.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="font-medium">{volunteer.name}</p>
-                      <p className="text-sm text-muted-foreground">{volunteer.email}</p>
+            {filteredVolunteers.map((v) => {
+              const status =
+                v.isBanned ? "inactive" : v.isApproved ? "active" : "inactive";
+
+              return (
+                <TableRow
+                  key={v._id}
+                  className="cursor-pointer hover:bg-muted/30"
+                  onClick={() => navigate(`/volunteers/${v._id}`)}
+                >
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <Avatar>
+                        <AvatarFallback>
+                          {v.firstname?.[0]}
+                          {v.lastname?.[0]}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="font-medium">
+                          {v.firstname} {v.lastname}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {v.email}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                </TableCell>
-                <TableCell className="hidden md:table-cell text-muted-foreground">
-                  {volunteer.location}
-                </TableCell>
-                <TableCell className="hidden lg:table-cell">
-                  <div className="flex gap-1 flex-wrap">
-                    {volunteer.skills.slice(0, 2).map((skill) => (
-                      <Badge key={skill} variant="secondary" className="bg-primary/10 text-primary text-xs">
-                        {skill}
-                      </Badge>
-                    ))}
-                    {volunteer.skills.length > 2 && (
-                      <Badge variant="secondary" className="text-xs">+{volunteer.skills.length - 2}</Badge>
-                    )}
-                  </div>
-                </TableCell>
-                <TableCell className="hidden sm:table-cell">
-                  <Badge
-                    variant="outline"
-                    className={volunteer.status === 'active'
-                      ? 'bg-success/10 text-success border-success/20'
-                      : 'bg-muted text-muted-foreground'
-                    }
+                  </TableCell>
+
+                  <TableCell className="hidden md:table-cell">
+                    {v.address}
+                  </TableCell>
+
+                  <TableCell className="hidden lg:table-cell">
+                    <div className="flex gap-1 flex-wrap">
+                      {v.skills.slice(0, 2).map((s) => (
+                        <Badge key={s} variant="secondary">
+                          {s}
+                        </Badge>
+                      ))}
+                      {v.skills.length > 2 && (
+                        <Badge variant="outline">
+                          +{v.skills.length - 2}
+                        </Badge>
+                      )}
+                    </div>
+                  </TableCell>
+
+                  <TableCell>
+                    <Badge
+                      variant="outline"
+                      className={
+                        status === "active"
+                          ? "bg-success/10 text-success"
+                          : "bg-muted text-muted-foreground"
+                      }
+                    >
+                      {status}
+                    </Badge>
+                  </TableCell>
+
+                  <TableCell
+                    className="text-right"
+                    onClick={(e) => e.stopPropagation()}
                   >
-                    {volunteer.status.charAt(0).toUpperCase() + volunteer.status.slice(1)}
-                  </Badge>
-                </TableCell>
-                <TableCell className="hidden lg:table-cell font-medium">
-                  {volunteer.hoursContributed}h
-                </TableCell>
-                <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                        <MoreHorizontal className="w-4 h-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => navigate(`/volunteers/${volunteer.id}`)}>
-                        <Eye className="w-4 h-4 mr-2" />
-                        View Details
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <Mail className="w-4 h-4 mr-2" />
-                        Send Email
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="text-destructive">
-                        <UserX className="w-4 h-4 mr-2" />
-                        Deactivate
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
-            ))}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                          <MoreHorizontal className="w-4 h-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem>
+                          <Eye className="w-4 h-4 mr-2" />
+                          View
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          <Mail className="w-4 h-4 mr-2" />
+                          Email
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="text-destructive">
+                          <UserX className="w-4 h-4 mr-2" />
+                          Deactivate
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </div>
     </DashboardLayout>
+  );
+}
+
+/* ================= SMALL STAT COMPONENT ================= */
+
+function Stat({ title, value }: { title: string; value: any }) {
+  return (
+    <div className="rounded-xl bg-card card-shadow p-4">
+      <p className="text-sm text-muted-foreground">{title}</p>
+      <p className="text-2xl font-bold">{value}</p>
+    </div>
   );
 }

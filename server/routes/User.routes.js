@@ -1,5 +1,5 @@
 import express from "express";
-import { admin, kyc_approval, kyc_rejection, kyc_upload, manager, user, user_profile } from "../controllers/User.controllers.js";
+import { admin, kyc_approval, kyc_rejection, kyc_upload, manager, user, user_profile, view_all_users } from "../controllers/User.controllers.js";
 import { verifyToken } from "../middleware/protected.js";
 import { authorizeRole } from "../middleware/roleMiddleware.js";
 
@@ -15,7 +15,7 @@ router.get("/manager", verifyToken, manager)
 
 
 // Everyone
-router.get("/user", verifyToken, user)
+router.get("/all", verifyToken, view_all_users)
 router.get("/user-profile", verifyToken, user_profile)
 
 router.post("/kyc-upload", verifyToken, kyc_upload)

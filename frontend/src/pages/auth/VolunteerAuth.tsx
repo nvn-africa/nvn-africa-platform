@@ -24,6 +24,7 @@ const VolunteerAuth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuth();
+  const BACKEND_URL = 'https://nvn-africa-platform.onrender.com';
 
 
   const [loginData, setLoginData] = useState({ email: "", password: "" });
@@ -53,7 +54,7 @@ const VolunteerAuth = () => {
         password: loginData.password,
       };
 
-      const response = await axios.post("http://localhost:3000/api/auth/login", payload);
+      const response = await axios.post(`${BACKEND_URL}/api/auth/login`, payload);
       console.debug("Login response:", response);
 
       if (response.data?.success) {
@@ -99,7 +100,7 @@ const VolunteerAuth = () => {
 
       };
 
-      const response = await axios.post("http://localhost:3000/api/auth/register", payload);
+      const response = await axios.post(`${BACKEND_URL}/api/auth/register`, payload);
       // console.log("Response from backend:", response.data);
 
       if (response.data?.success) {

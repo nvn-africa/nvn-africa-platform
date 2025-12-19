@@ -20,46 +20,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 
-
-// const projects = [
-//   {
-//     id: 1,
-//     name: 'Youth Education Initiative',
-//     status: 'active',
-//     startDate: '2024-01-15',
-//     endDate: '2024-06-30',
-//     lead: { name: 'Sarah Johnson', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100' },
-//     volunteers: 24,
-//   },
-//   {
-//     id: 2,
-//     name: 'Community Health Outreach',
-//     status: 'completed',
-//     startDate: '2023-09-01',
-//     endDate: '2024-02-28',
-//     lead: { name: 'Michael Chen', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100' },
-//     volunteers: 18,
-//   },
-//   {
-//     id: 3,
-//     name: 'Environmental Cleanup',
-//     status: 'pending',
-//     startDate: '2024-03-01',
-//     endDate: '2024-05-15',
-//     lead: { name: 'Amara Okonkwo', avatar: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=100' },
-//     volunteers: 32,
-//   },
-//   {
-//     id: 4,
-//     name: 'Tech Skills Workshop',
-//     status: 'active',
-//     startDate: '2024-02-01',
-//     endDate: '2024-08-31',
-//     lead: { name: 'David Mensah', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100' },
-//     volunteers: 15,
-//   },
-// ];
-
 const statusColors: Record<string, string> = {
   active: 'bg-success/10 text-success border-success/20',
   completed: 'bg-muted text-muted-foreground border-muted',
@@ -71,97 +31,145 @@ interface ProjectsTableProps {
   onEditProject?: (id: number) => void;
 }
 
+
+
 export function ProjectsTable({ onViewProject, onEditProject }: ProjectsTableProps) {
   const navigate = useNavigate();
-  const [projects, setProjects] = useState([]);
+  const [projects, setProjects] = useState<any[]>([]);
+  const BACKEND_URL = 'https://nvn-africa-platform.onrender.com';
+
 
   useEffect(() => {
     const token = localStorage.getItem("inv-token");
 
+    if (!token) {
+      navigate("/login");
+      return;
+    }
 
     const fetchProjects = async () => {
       try {
+        const response = await axios.get(
+          `${BACKEND_URL}/api/project/view-projects`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
-
-        // 🟢 Online: Fetch fresh data
-        const response = await axios.get(`localhost:3000/api/project/`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (response.data.projects) {
-          setProjects(response.data.projects);
-          localStorage.setItem(
-            "cachedProjects",
-            JSON.stringify(response.data.projects)
-          );
-          console.log("✅ projects cached locally");
-        }
+        // ✅ backend returns { data: [...] }
+        setProjects(response.data.data);
       } catch (error) {
         console.error("Error fetching projects:", error);
       }
     };
 
-
-
     fetchProjects();
-
-  }, [])
+  }, [navigate]);
 
   return (
     <div className="rounded-xl bg-card card-shadow overflow-hidden">
       <Table>
         <TableHeader>
-          <TableRow className="bg-muted/50 hover:bg-muted/50">
-            <TableHead className="font-semibold">Project Name</TableHead>
-            <TableHead className="font-semibold">Status</TableHead>
-            <TableHead className="font-semibold hidden md:table-cell">Duration</TableHead>
-            <TableHead className="font-semibold hidden lg:table-cell">Project Lead</TableHead>
-            <TableHead className="font-semibold hidden sm:table-cell">Volunteers</TableHead>
-            <TableHead className="font-semibold text-right">Actions</TableHead>
+          <TableRow className="bg-muted/50">
+            <TableHead>Project Title</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead className="hidden md:table-cell">Duration</TableHead>
+            <TableHead className="hidden lg:table-cell">Project Lead</TableHead>
+            <TableHead className="hidden sm:table-cell">Volunteers</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
+
         <TableBody>
           {projects.map((project) => (
             <TableRow
-              key={project.id}
-              className="hover:bg-muted/30 transition-colors cursor-pointer"
-              onClick={() => navigate(`/projects/${project.id}`)}
+              key={project._id}
+              className="cursor-pointer hover:bg-muted/30"
+              onClick={() => navigate(`/projects/${project._id}`)}
             >
-              <TableCell className="font-medium">{project.name}</TableCell>
+              {/* TITLE */}
+              <TableCell className="font-medium">
+                {project.title}
+              </TableCell>
+
+              {/* STATUS */}
               <TableCell>
-                <Badge variant="outline" className={statusColors[project.status]}>
-                  {project.status.charAt(0).toUpperCase() + project.status.slice(1)}
+                <Badge
+                  variant="outline"
+                  className={statusColors[project.status]}
+                >
+                  {project.status}
                 </Badge>
               </TableCell>
+
+              {/* DURATION */}
               <TableCell className="hidden md:table-cell text-muted-foreground">
-                {new Date(project.startDate).toLocaleDateString()} - {new Date(project.endDate).toLocaleDateString()}
+                {project.start_date
+                  ? new Date(project.start_date).toLocaleDateString()
+                  : "—"}{" "}
+                -{" "}
+                {project.end_date
+                  ? new Date(project.end_date).toLocaleDateString()
+                  : "—"}
               </TableCell>
+
+              {/* PROJECT LEAD */}
               <TableCell className="hidden lg:table-cell">
-                <div className="flex items-center gap-2">
-                  <Avatar className="w-7 h-7">
-                    <AvatarImage src={project.lead.avatar} />
-                    <AvatarFallback>{project.lead.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                  </Avatar>
-                  <span className="text-sm">{project.lead.name}</span>
-                </div>
+                {project.project_lead ? (
+                  <div className="flex items-center gap-2">
+                    <Avatar className="w-7 h-7">
+                      <AvatarImage src={project.project_lead.avatar} />
+                      <AvatarFallback>
+                        {project.project_lead.name
+                          ?.split(" ")
+                          .map((n) => n[0])
+                          .join("")}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="text-sm">
+                      {project.project_lead.name}
+                    </span>
+                  </div>
+                ) : (
+                  <span className="text-muted-foreground">Unassigned</span>
+                )}
               </TableCell>
-              <TableCell className="hidden sm:table-cell">{project.volunteers}</TableCell>
-              <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
+
+              {/* VOLUNTEERS */}
+              <TableCell className="hidden sm:table-cell">
+                {project.volunteers?.length || 0} /{" "}
+                {project.neededVolunteers || 0}
+              </TableCell>
+
+              {/* ACTIONS */}
+              <TableCell
+                className="text-right"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon">
                       <MoreHorizontal className="w-4 h-4" />
                     </Button>
                   </DropdownMenuTrigger>
+
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => onViewProject?.(project.id)}>
+                    <DropdownMenuItem
+                      onClick={() => onViewProject?.(project._id)}
+                    >
                       <Eye className="w-4 h-4 mr-2" />
                       View Details
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => onEditProject?.(project.id)}>
+
+                    <DropdownMenuItem
+                      onClick={() => onEditProject?.(project._id)}
+                    >
                       <Edit className="w-4 h-4 mr-2" />
                       Edit
                     </DropdownMenuItem>
+
                     <DropdownMenuItem className="text-destructive">
                       <Trash2 className="w-4 h-4 mr-2" />
                       Delete
@@ -176,3 +184,4 @@ export function ProjectsTable({ onViewProject, onEditProject }: ProjectsTablePro
     </div>
   );
 }
+

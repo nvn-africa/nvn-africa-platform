@@ -85,41 +85,78 @@ export const view_all_rejected_project_requests = async (req, res) => {
 
 export const create_project = async (req, res) => {
     try {
-        const { title, description, location, start_date, end_date, requirements } = req.body;
+        const {
+            title,
+            description,
+            location,
+            start_date,
+            end_date,
+            requirements,
+            project_lead,   // OPTIONAL
+            volunteers      // OPTIONAL (array of userIds)
+        } = req.body;
+
+        /* ================= VALIDATION ================= */
 
         if (!title || !description || !location || !start_date || !end_date || !requirements) {
-            return res.status(400).json({ message: "All fields are required" })
+            return res.status(400).json({ message: "All required fields must be provided" });
         }
+
         if (!Array.isArray(requirements)) {
             return res.status(400).json({ message: "Requirements must be an array" });
         }
 
-        const projectExists = await Project.findOne({ title });
-
-        if (projectExists) {
-            return res.status(400).json({ message: "project already submitted and pending verification" });
+        if (volunteers && !Array.isArray(volunteers)) {
+            return res.status(400).json({ message: "Volunteers must be an array" });
         }
+
+        /* ================= DUPLICATE CHECK ================= */
+
+        const projectExists = await Project.findOne({ title });
+        if (projectExists) {
+            return res.status(400).json({
+                message: "Project already exists and is pending verification",
+            });
+        }
+
+        /* ================= OBJECT ID SAFETY ================= */
+
+        const validProjectLead =
+            project_lead && mongoose.Types.ObjectId.isValid(project_lead)
+                ? project_lead
+                : req.user._id;
+
+        const validVolunteers = volunteers
+            ? volunteers.filter((id) => mongoose.Types.ObjectId.isValid(id))
+            : [];
+
+        /* ================= CREATE PROJECT ================= */
 
         const project = new Project({
             title,
             description,
-            project_lead: req.user._id,
-            location,
+            project_lead: validProjectLead,
+            community: location,
             start_date,
             end_date,
-            requirements: requirements,
-            created_by: req.user._id
-        })
+            requirements,
+            volunteers: validVolunteers,
+            createdBy: req.user._id,
+        });
 
         await project.save();
 
         return res.status(201).json({
             success: true,
-            message: `project created and ${req.user._id} is the project lead`,
-            data: project
+            message: "Project created successfully",
+            data: project,
         });
     } catch (error) {
-        res.status(500).json({ message: "Error in create_project controller", error })
+        console.error(error);
+        return res.status(500).json({
+            message: "Error in create_project controller",
+            error: error.message,
+        });
     }
 }
 
@@ -543,5 +580,22 @@ export const getStats = async (req, res) => {
             message: "Failed to fetch stats",
             error: error.message
         });
+    }
+};
+
+
+export const get_single_project = async (req, res) => {
+    try {
+        const project = await Project.findById(req.params.id)
+            .populate("project_lead", "firstname lastname email")
+            .populate("volunteers", "firstname lastname email");
+
+        if (!project) {
+            return res.status(404).json({ message: "Project not found" });
+        }
+
+        res.status(200).json({ success: true, data: project });
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching project", error });
     }
 };

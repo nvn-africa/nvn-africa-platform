@@ -1,7 +1,7 @@
 import express from "express";
 import { verifyToken } from "../middleware/protected.js";
 import { authorizeRole } from "../middleware/roleMiddleware.js";
-import { approved_request, completed_project, create_project, delete_project, getStats, my_approved_projects, ongoing_project, project_request, rejected_request, upcoming_project, update_project, view_all_approved_project_requests, view_all_project, view_all_project_requests, view_all_rejected_project_requests, view_my_created_project } from "../controllers/Project.controllers.js";
+import { approved_request, completed_project, create_project, delete_project, get_single_project, getStats, my_approved_projects, ongoing_project, project_request, rejected_request, upcoming_project, update_project, view_all_approved_project_requests, view_all_project, view_all_project_requests, view_all_rejected_project_requests, view_my_created_project } from "../controllers/Project.controllers.js";
 
 const router = express.Router()
 
@@ -10,6 +10,12 @@ const router = express.Router()
 router.post("/create-project", verifyToken, authorizeRole("admin", "mobilizer"), create_project)
 router.get("/view-projects", verifyToken, view_all_project)
 // router.get("/projects/:id", verifyToken, get_single_project);
+router.get(
+    "/view-project/:id",
+    verifyToken,
+    authorizeRole("admin", "mobilizer"),
+    get_single_project
+);
 
 router.get("/my-approved-projects", verifyToken, my_approved_projects)
 
