@@ -79,6 +79,16 @@ export const register = async (req, res) => {
             user: { id: newUser._id, email: newUser.email, name: newUser.username }
         });
     } catch (error) {
+        if (error.code === 11000) {
+            // Determine which field caused the duplicate
+            const field = Object.keys(error.keyPattern)[0];
+            const message = `${field.charAt(0).toUpperCase() + field.slice(1)} already exists. Please use another one.`;
+
+            return res.status(400).json({
+                success: false,
+                message: message
+            });
+        }
         res.status(500).json({ success: false, message: "Error in Register Controller", error: error.message });
     }
 }
