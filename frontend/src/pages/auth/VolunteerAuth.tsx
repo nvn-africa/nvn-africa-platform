@@ -119,10 +119,7 @@ const VolunteerAuth = () => {
     }
 
 
-    setTimeout(() => {
-      setIsLoading(false);
-
-    }, 1500);
+  
   };
 
   const toggleTag = (array: string[], item: string, setter: (arr: string[]) => void) => {
@@ -323,7 +320,10 @@ const VolunteerAuth = () => {
                       placeholder="+234 800 000 0000"
                       value={signupData.phone}
                       onChange={(e) => setSignupData({ ...signupData, phone: e.target.value })}
-                      className={cn("pl-10 rounded-xl", errors.phone && "border-destructive")}
+                      className={cn(
+                        "pl-10 rounded-xl",
+                        (errors.phone || errors.general?.includes("phone")) && "border-destructive ring-1 ring-destructive"
+                      )}
                     />
                   </div>
                   {errors.phone && <p className="text-xs text-destructive">{errors.phone}</p>}
