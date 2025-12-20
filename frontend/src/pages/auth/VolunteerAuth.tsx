@@ -200,247 +200,243 @@ const VolunteerAuth = () => {
               <p className="text-red-500 text-sm mt-2">{errors.general}</p>
             )}
             {activeTab === "login" && (
-              <>
+              <form onSubmit={handleLogin} className="space-y-4">
                 {errors.general && (
                   <p className="text-red-500 text-sm mt-2">{errors.general}</p>
                 )}
-                <form onSubmit={handleLogin} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="login-email">Email</Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="login-email"
-                        type="email"
-                        placeholder="you@example.com"
-                        value={loginData.email}
-                        onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
-                        required
-                        className="pl-10 rounded-xl border-border focus-visible:ring-primary"
-                      />
-                    </div>
+                <div className="space-y-2">
+                  <Label htmlFor="login-email">Email</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="login-email"
+                      type="email"
+                      placeholder="you@example.com"
+                      value={loginData.email}
+                      onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
+                      required
+                      className="pl-10 rounded-xl border-border focus-visible:ring-primary"
+                    />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="login-password">Password</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="login-password"
-                        type={showPassword ? "text" : "password"}
-                        placeholder="••••••••"
-                        value={loginData.password}
-                        onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
-                        required
-                        className="pl-10 pr-10 rounded-xl border-border focus-visible:ring-primary"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                      >
-                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </button>
-                    </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="login-password">Password</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="login-password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      value={loginData.password}
+                      onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
+                      required
+                      className="pl-10 pr-10 rounded-xl border-border focus-visible:ring-primary"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
                   </div>
-                  <Button
-                    type="submit"
-                    className="w-full rounded-xl bg-primary hover:bg-primary/90 text-white py-6 text-lg"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? "Signing in..." : "Sign In"}
-                  </Button>
-                </form>
-              </>
+                </div>
+                <Button
+                  type="submit"
+                  className="w-full rounded-xl bg-primary hover:bg-primary/90 text-white py-6 text-lg"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Signing in..." : "Sign In"}
+                </Button>
+              </form>
             )}
 
             {/* Signup Form */}
             {activeTab === "signup" && (
-              <>
+              <form onSubmit={handleSignup} className="space-y-4">
                 {errors.general && (
                   <p className="text-red-500 text-sm mt-2">{errors.general}</p>
                 )}
-                <form onSubmit={handleSignup} className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="firstname">First Name</Label>
-                      <Input
-                        id="firstname"
-                        placeholder="John"
-                        value={signupData.firstname}
-                        onChange={(e) => setSignupData({ ...signupData, firstname: e.target.value })}
-                        className={cn("rounded-xl", errors.firstname && "border-destructive")}
-                      />
-                      {errors.firstname && <p className="text-xs text-destructive">{errors.firstname}</p>}
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="lastname">Last Name</Label>
-                      <Input
-                        id="lastname"
-                        placeholder="Doe"
-                        value={signupData.lastname}
-                        onChange={(e) => setSignupData({ ...signupData, lastname: e.target.value })}
-                        className={cn("rounded-xl", errors.lastname && "border-destructive")}
-                      />
-                      {errors.lastname && <p className="text-xs text-destructive">{errors.lastname}</p>}
-                    </div>
-                  </div>
-
+                <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="username">Username</Label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="username"
-                        placeholder="johndoe"
-                        value={signupData.username}
-                        onChange={(e) => setSignupData({ ...signupData, username: e.target.value })}
-                        className={cn("pl-10 rounded-xl", errors.username && "border-destructive")}
-                      />
-                    </div>
-                    {errors.username && <p className="text-xs text-destructive">{errors.username}</p>}
+                    <Label htmlFor="firstname">First Name</Label>
+                    <Input
+                      id="firstname"
+                      placeholder="John"
+                      value={signupData.firstname}
+                      onChange={(e) => setSignupData({ ...signupData, firstname: e.target.value })}
+                      className={cn("rounded-xl", errors.firstname && "border-destructive")}
+                    />
+                    {errors.firstname && <p className="text-xs text-destructive">{errors.firstname}</p>}
                   </div>
-
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="email"
-                        type="email"
-                        placeholder="john@example.com"
-                        value={signupData.email}
-                        onChange={(e) => setSignupData({ ...signupData, email: e.target.value })}
-                        className={cn("pl-10 rounded-xl", errors.email && "border-destructive")}
-                      />
-                    </div>
-                    {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
+                    <Label htmlFor="lastname">Last Name</Label>
+                    <Input
+                      id="lastname"
+                      placeholder="Doe"
+                      value={signupData.lastname}
+                      onChange={(e) => setSignupData({ ...signupData, lastname: e.target.value })}
+                      className={cn("rounded-xl", errors.lastname && "border-destructive")}
+                    />
+                    {errors.lastname && <p className="text-xs text-destructive">{errors.lastname}</p>}
                   </div>
+                </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Phone Number</Label>
-                    <div className="relative">
-                      <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="phone"
-                        type="tel"
-                        placeholder="+234 800 000 0000"
-                        value={signupData.phone}
-                        onChange={(e) => setSignupData({ ...signupData, phone: e.target.value })}
-                        className={cn("pl-10 rounded-xl", errors.phone && "border-destructive")}
-                      />
-                    </div>
-                    {errors.phone && <p className="text-xs text-destructive">{errors.phone}</p>}
+                <div className="space-y-2">
+                  <Label htmlFor="username">Username</Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="username"
+                      placeholder="johndoe"
+                      value={signupData.username}
+                      onChange={(e) => setSignupData({ ...signupData, username: e.target.value })}
+                      className={cn("pl-10 rounded-xl", errors.username && "border-destructive")}
+                    />
                   </div>
+                  {errors.username && <p className="text-xs text-destructive">{errors.username}</p>}
+                </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="password">Password</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="password"
-                        type={showPassword ? "text" : "password"}
-                        placeholder="••••••••"
-                        value={signupData.password}
-                        onChange={(e) => setSignupData({ ...signupData, password: e.target.value })}
-                        className={cn("pl-10 pr-10 rounded-xl", errors.password && "border-destructive")}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                      >
-                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </button>
-                    </div>
-
-                    {errors.password && <p className="text-xs text-destructive">{errors.password}</p>}
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="john@example.com"
+                      value={signupData.email}
+                      onChange={(e) => setSignupData({ ...signupData, email: e.target.value })}
+                      className={cn("pl-10 rounded-xl", errors.email && "border-destructive")}
+                    />
                   </div>
+                  {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
+                </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Gender</Label>
-                      <Select
-                        value={signupData.gender}
-                        onValueChange={(value) => setSignupData({ ...signupData, gender: value })}
-                      >
-                        <SelectTrigger className={cn("rounded-xl", errors.gender && "border-destructive")}>
-                          <SelectValue placeholder="Select" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-card">
-                          <SelectItem value="male">Male</SelectItem>
-                          <SelectItem value="female">Female</SelectItem>
-                          <SelectItem value="other">Other</SelectItem>
-                          <SelectItem value="prefer-not">Prefer not to say</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      {errors.gender && <p className="text-xs text-destructive">{errors.gender}</p>}
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Date of Birth</Label>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            className={cn(
-                              "w-full justify-start text-left font-normal rounded-xl",
-                              !signupData.date_of_birth && "text-muted-foreground",
-                              errors.date_of_birth && "border-destructive"
-                            )}
-                          >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {signupData.date_of_birth ? format(signupData.date_of_birth, "PP") : "Select date"}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0 bg-card" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={signupData.date_of_birth}
-                            onSelect={(date) => setSignupData({ ...signupData, date_of_birth: date })}
-                            disabled={(date) => date > new Date() || date < new Date("1920-01-01")}
-                            initialFocus
-                            className="pointer-events-auto"
-                          />
-                        </PopoverContent>
-                      </Popover>
-                      {errors.date_of_birth && <p className="text-xs text-destructive">{errors.date_of_birth}</p>}
-                    </div>
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Phone Number</Label>
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="phone"
+                      type="tel"
+                      placeholder="+234 800 000 0000"
+                      value={signupData.phone}
+                      onChange={(e) => setSignupData({ ...signupData, phone: e.target.value })}
+                      className={cn("pl-10 rounded-xl", errors.phone && "border-destructive")}
+                    />
                   </div>
+                  {errors.phone && <p className="text-xs text-destructive">{errors.phone}</p>}
+                </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="address">Address</Label>
-                    <div className="relative">
-                      <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="address"
-                        placeholder="City, Country"
-                        value={signupData.address}
-                        onChange={(e) => setSignupData({ ...signupData, address: e.target.value })}
-                        className={cn("pl-10 rounded-xl", errors.address && "border-destructive")}
-                      />
-                    </div>
-                    {errors.address && <p className="text-xs text-destructive">{errors.address}</p>}
-                  </div>
-
-                  <Button
-                    type="submit"
-                    className="w-full rounded-xl bg-primary hover:bg-primary/90 text-white py-6 text-lg mt-6"
-                  >
-                    Continue
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Button>
-
-                  <p className="text-center text-sm text-muted-foreground">
-                    Already have an account?{" "}
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      value={signupData.password}
+                      onChange={(e) => setSignupData({ ...signupData, password: e.target.value })}
+                      className={cn("pl-10 pr-10 rounded-xl", errors.password && "border-destructive")}
+                    />
                     <button
                       type="button"
-                      onClick={() => setActiveTab("login")}
-                      className="text-primary font-medium hover:underline"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                     >
-                      Login
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
-                  </p>
-                </form>
-              </>
+                  </div>
+
+                  {errors.password && <p className="text-xs text-destructive">{errors.password}</p>}
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Gender</Label>
+                    <Select
+                      value={signupData.gender}
+                      onValueChange={(value) => setSignupData({ ...signupData, gender: value })}
+                    >
+                      <SelectTrigger className={cn("rounded-xl", errors.gender && "border-destructive")}>
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-card">
+                        <SelectItem value="male">Male</SelectItem>
+                        <SelectItem value="female">Female</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                        <SelectItem value="prefer-not">Prefer not to say</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {errors.gender && <p className="text-xs text-destructive">{errors.gender}</p>}
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Date of Birth</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-start text-left font-normal rounded-xl",
+                            !signupData.date_of_birth && "text-muted-foreground",
+                            errors.date_of_birth && "border-destructive"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {signupData.date_of_birth ? format(signupData.date_of_birth, "PP") : "Select date"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 bg-card" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={signupData.date_of_birth}
+                          onSelect={(date) => setSignupData({ ...signupData, date_of_birth: date })}
+                          disabled={(date) => date > new Date() || date < new Date("1920-01-01")}
+                          initialFocus
+                          className="pointer-events-auto"
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    {errors.date_of_birth && <p className="text-xs text-destructive">{errors.date_of_birth}</p>}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="address">Address</Label>
+                  <div className="relative">
+                    <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="address"
+                      placeholder="City, Country"
+                      value={signupData.address}
+                      onChange={(e) => setSignupData({ ...signupData, address: e.target.value })}
+                      className={cn("pl-10 rounded-xl", errors.address && "border-destructive")}
+                    />
+                  </div>
+                  {errors.address && <p className="text-xs text-destructive">{errors.address}</p>}
+                </div>
+
+                <Button
+                  type="submit"
+                  className="w-full rounded-xl bg-primary hover:bg-primary/90 text-white py-6 text-lg mt-6"
+                >
+                  Continue
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+
+                <p className="text-center text-sm text-muted-foreground">
+                  Already have an account?{" "}
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("login")}
+                    className="text-primary font-medium hover:underline"
+                  >
+                    Login
+                  </button>
+                </p>
+              </form>
             )}
           </CardContent>
         </Card>

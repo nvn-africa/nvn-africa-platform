@@ -14,7 +14,7 @@ const app = express();
 const PORT = process.env.PORT;
 
 app.use(cors({
-    origin: ["http://localhost:5173", "http://localhost:8080"],
+    origin: ["http://localhost:5173", "https://nvn-africa-platform-uvv7.vercel.app"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
