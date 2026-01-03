@@ -42,25 +42,33 @@ const VolunteerProfile = () => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const token = localStorage.getItem("token");
+  const fetchProfile = async () => {
+    try {
+      const token = localStorage.getItem("token");
 
-        const res = await axios.get(
-          "https://nvn-africa-platform.onrender.com/api/user/user-profile",
-          {
-            headers: { Authorization: `Bearer ${token}` }
-          }
-        );
-
-        setProfile(res.data.data);
-      } catch (error) {
-        console.error("Profile fetch error:", error);
-      } finally {
-        setLoading(false);
+      if (!token) {
+        throw new Error("No token found");
       }
-    };
+
+      const res = await axios.get(
+        "https://nvn-africa-platform.onrender.com/api/user/user-profile",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      setProfile(res.data.data);
+    } catch (error) {
+      console.error(error.response?.data || error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  useEffect(() => {
 
     fetchProfile();
   }, []);
