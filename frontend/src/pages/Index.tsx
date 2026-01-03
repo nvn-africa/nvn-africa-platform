@@ -214,7 +214,7 @@ const Index = () => {
               <Button
                 size="lg"
                 className="gradient-primary text-lg px-8 py-6 hover-scale"
-                onClick={() => navigate('/admin/volunteers')}
+                onClick={goToDashboard}
               >
                 Join Us
                 <ArrowRight className="w-5 h-5 ml-2" />
