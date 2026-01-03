@@ -6,10 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Calendar, 
-  MapPin, 
-  Clock, 
+import {
+  Calendar,
+  MapPin,
+  Clock,
   ArrowRight,
   CheckCircle,
   AlertCircle,
@@ -20,71 +20,71 @@ const VolunteerMyProjects = () => {
   const navigate = useNavigate();
 
   const projects = [
-    {
-      id: 1,
-      name: 'Community Health Camp',
-      description: 'Free health screening and medical assistance',
-      status: 'ongoing',
-      progress: 65,
-      location: 'Lagos, Nigeria',
-      date: 'Dec 15-20, 2024',
-      hoursLogged: 24,
-      tasksCompleted: 8,
-      totalTasks: 12,
-      role: 'Field Volunteer'
-    },
-    {
-      id: 2,
-      name: 'Environmental Clean-up',
-      description: 'Beach cleaning initiative',
-      status: 'ongoing',
-      progress: 40,
-      location: 'Accra, Ghana',
-      date: 'Dec 18, 2024',
-      hoursLogged: 6,
-      tasksCompleted: 3,
-      totalTasks: 8,
-      role: 'Team Member'
-    },
-    {
-      id: 3,
-      name: 'Youth Education Drive',
-      description: 'After-school tutoring program',
-      status: 'pending',
-      progress: 0,
-      location: 'Nairobi, Kenya',
-      date: 'Dec 25, 2024',
-      hoursLogged: 0,
-      tasksCompleted: 0,
-      totalTasks: 10,
-      role: 'Tutor'
-    },
-    {
-      id: 4,
-      name: 'Women Empowerment Workshop',
-      description: 'Skills training for women',
-      status: 'completed',
-      progress: 100,
-      location: 'Addis Ababa, Ethiopia',
-      date: 'Nov 20-25, 2024',
-      hoursLogged: 36,
-      tasksCompleted: 10,
-      totalTasks: 10,
-      role: 'Workshop Facilitator'
-    },
-    {
-      id: 5,
-      name: 'Food Distribution Drive',
-      description: 'Distributing food to families',
-      status: 'completed',
-      progress: 100,
-      location: 'Kampala, Uganda',
-      date: 'Oct 15-16, 2024',
-      hoursLogged: 16,
-      tasksCompleted: 8,
-      totalTasks: 8,
-      role: 'Logistics Support'
-    },
+    // {
+    //   id: 1,
+    //   name: 'Coming Soon',
+    //   description: 'Free health screening and medical assistance',
+    //   status: 'ongoing',
+    //   progress: 65,
+    //   location: 'Lagos, Nigeria',
+    //   date: 'Dec 15-20, 2024',
+    //   hoursLogged: 24,
+    //   tasksCompleted: 8,
+    //   totalTasks: 12,
+    //   role: 'Field Volunteer'
+    // },
+    // {
+    //   id: 2,
+    //   name: 'Environmental Clean-up',
+    //   description: 'Beach cleaning initiative',
+    //   status: 'ongoing',
+    //   progress: 40,
+    //   location: 'Accra, Ghana',
+    //   date: 'Dec 18, 2024',
+    //   hoursLogged: 6,
+    //   tasksCompleted: 3,
+    //   totalTasks: 8,
+    //   role: 'Team Member'
+    // },
+    // {
+    //   id: 3,
+    //   name: 'Youth Education Drive',
+    //   description: 'After-school tutoring program',
+    //   status: 'pending',
+    //   progress: 0,
+    //   location: 'Nairobi, Kenya',
+    //   date: 'Dec 25, 2024',
+    //   hoursLogged: 0,
+    //   tasksCompleted: 0,
+    //   totalTasks: 10,
+    //   role: 'Tutor'
+    // },
+    // {
+    //   id: 4,
+    //   name: 'Women Empowerment Workshop',
+    //   description: 'Skills training for women',
+    //   status: 'completed',
+    //   progress: 100,
+    //   location: 'Addis Ababa, Ethiopia',
+    //   date: 'Nov 20-25, 2024',
+    //   hoursLogged: 36,
+    //   tasksCompleted: 10,
+    //   totalTasks: 10,
+    //   role: 'Workshop Facilitator'
+    // },
+    // {
+    //   id: 5,
+    //   name: 'Food Distribution Drive',
+    //   description: 'Distributing food to families',
+    //   status: 'completed',
+    //   progress: 100,
+    //   location: 'Kampala, Uganda',
+    //   date: 'Oct 15-16, 2024',
+    //   hoursLogged: 16,
+    //   tasksCompleted: 8,
+    //   totalTasks: 8,
+    //   role: 'Logistics Support'
+    // },
   ];
 
   const getStatusColor = (status: string) => {
@@ -109,7 +109,7 @@ const VolunteerMyProjects = () => {
   };
 
   const ProjectCard = ({ project }: { project: typeof projects[0] }) => (
-    <Card 
+    <Card
       className="hover:border-primary/50 cursor-pointer transition-all"
       onClick={() => navigate(`/volunteer/projects/${project.id}`)}
     >
@@ -169,31 +169,31 @@ const VolunteerMyProjects = () => {
   return (
     <>
       <VolunteerHeader title="My Projects" subtitle="Track your volunteering journey" />
-      
+
       <div className="flex-1 overflow-auto p-6 space-y-6">
         {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <Card>
             <CardContent className="p-4 text-center">
-              <p className="text-2xl font-bold text-primary">{stats.ongoing}</p>
+              <p className="text-2xl font-bold text-primary">0</p>
               <p className="text-sm text-muted-foreground">Ongoing</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4 text-center">
-              <p className="text-2xl font-bold text-warning">{stats.pending}</p>
+              <p className="text-2xl font-bold text-warning">0</p>
               <p className="text-sm text-muted-foreground">Pending</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4 text-center">
-              <p className="text-2xl font-bold text-success">{stats.completed}</p>
+              <p className="text-2xl font-bold text-success">0</p>
               <p className="text-sm text-muted-foreground">Completed</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4 text-center">
-              <p className="text-2xl font-bold text-foreground">{stats.totalHours}</p>
+              <p className="text-2xl font-bold text-foreground">0</p>
               <p className="text-sm text-muted-foreground">Total Hours</p>
             </CardContent>
           </Card>
@@ -218,8 +218,8 @@ const VolunteerMyProjects = () => {
               {filterProjects(status).length === 0 && (
                 <div className="text-center py-12">
                   <p className="text-muted-foreground">No {status} projects found.</p>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     className="mt-4 text-primary border-primary"
                     onClick={() => navigate('/volunteer/projects')}
                   >
