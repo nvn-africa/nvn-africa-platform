@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import VolunteerHeader from '@/components/layout/VolunteerHeader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,11 +9,12 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  User, 
-  Mail, 
-  Phone, 
-  MapPin, 
+import axios from "axios";
+import {
+  User,
+  Mail,
+  Phone,
+  MapPin,
   Calendar,
   Camera,
   Save,
@@ -26,31 +27,59 @@ import {
 const VolunteerProfile = () => {
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
-  const [profile, setProfile] = useState({
-    firstName: 'John',
-    lastName: 'Doe',
-    email: 'john.doe@email.com',
-    phone: '+234 801 234 5678',
-    location: 'Lagos, Nigeria',
-    bio: 'Passionate volunteer dedicated to making a positive impact in my community. I specialize in health education and community outreach programs.',
-    joinDate: 'March 2024',
-    skills: ['Health Education', 'Community Outreach', 'Event Planning', 'First Aid', 'Teaching'],
-    interests: ['Healthcare', 'Education', 'Environment', 'Youth Development']
-  });
+  // const [profile, setProfile] = useState({
+  //   firstName: 'John',
+  //   lastName: 'Doe',
+  //   email: 'john.doe@email.com',
+  //   phone: '+234 801 234 5678',
+  //   location: 'Lagos, Nigeria',
+  //   bio: 'Passionate volunteer dedicated to making a positive impact in my community. I specialize in health education and community outreach programs.',
+  //   joinDate: 'March 2024',
+  //   skills: [],
+  //   interests: []
+  // });
+
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const token = localStorage.getItem("token");
+
+        const res = await axios.get(
+          "https://nvn-africa-platform.onrender.com/api/user-profile",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          }
+        );
+
+        setProfile(res.data.data);
+      } catch (err) {
+        console.error("Error fetching profile", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, []);
 
   const stats = {
-    hoursVolunteered: 156,
-    projectsCompleted: 8,
-    rating: 4.8,
-    badges: 5
+    hoursVolunteered: 0,
+    projectsCompleted: 0,
+    rating: 0,
+    badges: 0
   };
 
   const achievements = [
-    { name: '100 Hours', description: 'Volunteered 100+ hours', earned: true },
-    { name: 'Team Player', description: 'Completed 5 team projects', earned: true },
-    { name: 'First Project', description: 'Completed first project', earned: true },
-    { name: 'Mentor', description: 'Helped train new volunteers', earned: true },
-    { name: 'Champion', description: 'Volunteered 200+ hours', earned: false },
+    // { name: '100 Hours', description: 'Volunteered 100+ hours', earned: true },
+    // { name: 'Team Player', description: 'Completed 5 team projects', earned: true },
+    // { name: 'First Project', description: 'Completed first project', earned: true },
+    // { name: 'Mentor', description: 'Helped train new volunteers', earned: true },
+    // { name: 'Champion', description: 'Volunteered 200+ hours', earned: false },
   ];
 
   const handleSave = () => {
@@ -64,7 +93,7 @@ const VolunteerProfile = () => {
   return (
     <>
       <VolunteerHeader title="Profile" subtitle="Manage your volunteer profile" />
-      
+
       <div className="flex-1 overflow-auto p-6 space-y-6">
         {/* Profile Header */}
         <Card>
@@ -77,14 +106,14 @@ const VolunteerProfile = () => {
                     {profile.firstName[0]}{profile.lastName[0]}
                   </AvatarFallback>
                 </Avatar>
-                <Button 
-                  size="icon" 
+                <Button
+                  size="icon"
                   className="absolute bottom-0 right-0 w-10 h-10 rounded-full bg-primary"
                 >
                   <Camera className="w-5 h-5" />
                 </Button>
               </div>
-              
+
               <div className="flex-1">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
                   <div>
@@ -93,8 +122,8 @@ const VolunteerProfile = () => {
                     </h2>
                     <p className="text-muted-foreground">Volunteer since {profile.joinDate}</p>
                   </div>
-                  <Button 
-                    variant={isEditing ? "default" : "outline"} 
+                  <Button
+                    variant={isEditing ? "default" : "outline"}
                     onClick={() => isEditing ? handleSave() : setIsEditing(true)}
                     className={isEditing ? "bg-primary" : "text-primary border-primary"}
                   >
@@ -150,19 +179,19 @@ const VolunteerProfile = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="firstName">First Name</Label>
-                  <Input 
+                  <Input
                     id="firstName"
                     value={profile.firstName}
-                    onChange={(e) => setProfile({...profile, firstName: e.target.value})}
+                    onChange={(e) => setProfile({ ...profile, firstName: e.target.value })}
                     disabled={!isEditing}
                   />
                 </div>
                 <div>
                   <Label htmlFor="lastName">Last Name</Label>
-                  <Input 
+                  <Input
                     id="lastName"
                     value={profile.lastName}
-                    onChange={(e) => setProfile({...profile, lastName: e.target.value})}
+                    onChange={(e) => setProfile({ ...profile, lastName: e.target.value })}
                     disabled={!isEditing}
                   />
                 </div>
@@ -171,11 +200,11 @@ const VolunteerProfile = () => {
                 <Label htmlFor="email">Email</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input 
+                  <Input
                     id="email"
                     type="email"
                     value={profile.email}
-                    onChange={(e) => setProfile({...profile, email: e.target.value})}
+                    onChange={(e) => setProfile({ ...profile, email: e.target.value })}
                     disabled={!isEditing}
                     className="pl-10"
                   />
@@ -185,10 +214,10 @@ const VolunteerProfile = () => {
                 <Label htmlFor="phone">Phone</Label>
                 <div className="relative">
                   <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input 
+                  <Input
                     id="phone"
                     value={profile.phone}
-                    onChange={(e) => setProfile({...profile, phone: e.target.value})}
+                    onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
                     disabled={!isEditing}
                     className="pl-10"
                   />
@@ -198,10 +227,10 @@ const VolunteerProfile = () => {
                 <Label htmlFor="location">Location</Label>
                 <div className="relative">
                   <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input 
+                  <Input
                     id="location"
                     value={profile.location}
-                    onChange={(e) => setProfile({...profile, location: e.target.value})}
+                    onChange={(e) => setProfile({ ...profile, location: e.target.value })}
                     disabled={!isEditing}
                     className="pl-10"
                   />
@@ -209,10 +238,10 @@ const VolunteerProfile = () => {
               </div>
               <div>
                 <Label htmlFor="bio">Bio</Label>
-                <Textarea 
+                <Textarea
                   id="bio"
                   value={profile.bio}
-                  onChange={(e) => setProfile({...profile, bio: e.target.value})}
+                  onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
                   disabled={!isEditing}
                   rows={4}
                 />
@@ -228,7 +257,7 @@ const VolunteerProfile = () => {
               </CardHeader>
               <CardContent>
                 <div className="flex flex-wrap gap-2">
-                  {profile.skills.map((skill) => (
+                  {profile?.skills?.map((skill) => (
                     <Badge key={skill} variant="secondary" className="bg-primary/10 text-primary">
                       {skill}
                     </Badge>
@@ -262,11 +291,10 @@ const VolunteerProfile = () => {
               </CardHeader>
               <CardContent className="space-y-3">
                 {achievements.map((achievement) => (
-                  <div 
-                    key={achievement.name} 
-                    className={`flex items-center justify-between p-3 rounded-lg ${
-                      achievement.earned ? 'bg-primary/10' : 'bg-muted/30 opacity-50'
-                    }`}
+                  <div
+                    key={achievement.name}
+                    className={`flex items-center justify-between p-3 rounded-lg ${achievement.earned ? 'bg-primary/10' : 'bg-muted/30 opacity-50'
+                      }`}
                   >
                     <div className="flex items-center gap-3">
                       <Award className={`w-5 h-5 ${achievement.earned ? 'text-primary' : 'text-muted-foreground'}`} />
