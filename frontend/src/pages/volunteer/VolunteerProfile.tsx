@@ -48,7 +48,7 @@ const VolunteerProfile = () => {
         const token = localStorage.getItem("token");
 
         const res = await axios.get(
-          "https://nvn-africa-platform.onrender.com/api/user-profile",
+          "https://nvn-africa-platform.onrender.com/api/user/user-profile",
           {
             headers: { Authorization: `Bearer ${token}` }
           }
