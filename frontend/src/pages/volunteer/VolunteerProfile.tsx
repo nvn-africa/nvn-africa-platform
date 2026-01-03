@@ -28,8 +28,8 @@ const VolunteerProfile = () => {
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   // const [profile, setProfile] = useState({
-  //   firstName: 'John',
-  //   lastName: 'Doe',
+  //   firstname?.: 'John',
+  //   lastname?.: 'Doe',
   //   email: 'john.doe@email.com',
   //   phone: '+234 801 234 5678',
   //   location: 'Lagos, Nigeria',
@@ -50,15 +50,13 @@ const VolunteerProfile = () => {
         const res = await axios.get(
           "https://nvn-africa-platform.onrender.com/api/user-profile",
           {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
+            headers: { Authorization: `Bearer ${token}` }
           }
         );
 
         setProfile(res.data.data);
-      } catch (err) {
-        console.error("Error fetching profile", err);
+      } catch (error) {
+        console.error("Profile fetch error:", error);
       } finally {
         setLoading(false);
       }
@@ -90,6 +88,9 @@ const VolunteerProfile = () => {
     });
   };
 
+  if (loading) return <div className="p-6">Loading profile...</div>;
+  if (!profile) return <div className="p-6">Profile not found</div>;
+
   return (
     <>
       <VolunteerHeader title="Profile" subtitle="Manage your volunteer profile" />
@@ -103,7 +104,7 @@ const VolunteerProfile = () => {
                 <Avatar className="w-32 h-32">
                   <AvatarImage src="/placeholder.svg" />
                   <AvatarFallback className="bg-primary text-primary-foreground text-3xl">
-                    {profile.firstName[0]}{profile.lastName[0]}
+                    {profile.firstname?.[0]}{profile.lastname?.[0]}
                   </AvatarFallback>
                 </Avatar>
                 <Button
@@ -118,7 +119,7 @@ const VolunteerProfile = () => {
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
                   <div>
                     <h2 className="text-2xl font-bold text-foreground">
-                      {profile.firstName} {profile.lastName}
+                      {profile.firstame} {profile.lastname}
                     </h2>
                     <p className="text-muted-foreground">Volunteer since {profile.joinDate}</p>
                   </div>
@@ -178,20 +179,20 @@ const VolunteerProfile = () => {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="firstName">First Name</Label>
+                  <Label htmlFor="firstname?.">First Name</Label>
                   <Input
-                    id="firstName"
-                    value={profile.firstName}
-                    onChange={(e) => setProfile({ ...profile, firstName: e.target.value })}
+                    id="firstname?."
+                    value={profile.firstname}
+                    onChange={(e) => setProfile({ ...profile, firstname: e.target.value })}
                     disabled={!isEditing}
                   />
                 </div>
                 <div>
-                  <Label htmlFor="lastName">Last Name</Label>
+                  <Label htmlFor="lastname?.">Last Name</Label>
                   <Input
-                    id="lastName"
-                    value={profile.lastName}
-                    onChange={(e) => setProfile({ ...profile, lastName: e.target.value })}
+                    id="lastname?."
+                    value={profile.lastname}
+                    onChange={(e) => setProfile({ ...profile, lastname: e.target.value })}
                     disabled={!isEditing}
                   />
                 </div>
