@@ -89,7 +89,7 @@ const VolunteerProfile = () => {
   };
 
   if (loading) return <div className="p-6">Loading profile...</div>;
-  // if (!profile) return <div className="p-6">Profile not found</div>;
+  if (!profile) return <div className="p-6">Profile not found</div>;
 
   return (
     <>
