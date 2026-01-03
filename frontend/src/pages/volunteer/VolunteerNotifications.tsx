@@ -4,10 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Bell, 
-  CheckCircle, 
-  XCircle, 
+import {
+  Bell,
+  CheckCircle,
+  XCircle,
   FolderKanban,
   Calendar,
   MessageSquare,
@@ -17,62 +17,62 @@ import {
 
 const VolunteerNotifications = () => {
   const [notifications, setNotifications] = useState([
-    { 
-      id: 1, 
-      title: 'Request Approved!', 
-      message: 'Your request to join "Community Health Camp" has been approved. Welcome to the team!',
-      time: '2 hours ago',
-      type: 'approval',
-      read: false
-    },
-    { 
-      id: 2, 
-      title: 'New Project Available', 
-      message: 'A new project "Youth Education Drive" is now accepting volunteers. Check it out!',
-      time: '5 hours ago',
-      type: 'project',
-      read: false
-    },
-    { 
-      id: 3, 
-      title: 'Reminder: Training Session', 
-      message: 'Don\'t forget! Health Camp training session is scheduled for tomorrow at 10:00 AM.',
-      time: '1 day ago',
-      type: 'reminder',
-      read: false
-    },
-    { 
-      id: 4, 
-      title: 'Request Rejected', 
-      message: 'Unfortunately, your request to join "Food Distribution Drive" was not approved due to limited spots.',
-      time: '2 days ago',
-      type: 'rejection',
-      read: true
-    },
-    { 
-      id: 5, 
-      title: 'Project Update', 
-      message: 'Environmental Clean-up project has been rescheduled to December 18th.',
-      time: '3 days ago',
-      type: 'update',
-      read: true
-    },
-    { 
-      id: 6, 
-      title: 'Message from Project Lead', 
-      message: 'Dr. Sarah sent you a message regarding the Health Camp project.',
-      time: '4 days ago',
-      type: 'message',
-      read: true
-    },
-    { 
-      id: 7, 
-      title: 'Congratulations!', 
-      message: 'You\'ve completed 150 hours of volunteering! Keep up the great work.',
-      time: '1 week ago',
-      type: 'achievement',
-      read: true
-    },
+    // { 
+    //   id: 1, 
+    //   title: 'Request Approved!', 
+    //   message: 'Your request to join "Community Health Camp" has been approved. Welcome to the team!',
+    //   time: '2 hours ago',
+    //   type: 'approval',
+    //   read: false
+    // },
+    // { 
+    //   id: 2, 
+    //   title: 'New Project Available', 
+    //   message: 'A new project "Youth Education Drive" is now accepting volunteers. Check it out!',
+    //   time: '5 hours ago',
+    //   type: 'project',
+    //   read: false
+    // },
+    // { 
+    //   id: 3, 
+    //   title: 'Reminder: Training Session', 
+    //   message: 'Don\'t forget! Health Camp training session is scheduled for tomorrow at 10:00 AM.',
+    //   time: '1 day ago',
+    //   type: 'reminder',
+    //   read: false
+    // },
+    // { 
+    //   id: 4, 
+    //   title: 'Request Rejected', 
+    //   message: 'Unfortunately, your request to join "Food Distribution Drive" was not approved due to limited spots.',
+    //   time: '2 days ago',
+    //   type: 'rejection',
+    //   read: true
+    // },
+    // { 
+    //   id: 5, 
+    //   title: 'Project Update', 
+    //   message: 'Environmental Clean-up project has been rescheduled to December 18th.',
+    //   time: '3 days ago',
+    //   type: 'update',
+    //   read: true
+    // },
+    // { 
+    //   id: 6, 
+    //   title: 'Message from Project Lead', 
+    //   message: 'Dr. Sarah sent you a message regarding the Health Camp project.',
+    //   time: '4 days ago',
+    //   type: 'message',
+    //   read: true
+    // },
+    // { 
+    //   id: 7, 
+    //   title: 'Congratulations!', 
+    //   message: 'You\'ve completed 150 hours of volunteering! Keep up the great work.',
+    //   time: '1 week ago',
+    //   type: 'achievement',
+    //   read: true
+    // },
   ]);
 
   const getNotificationIcon = (type: string) => {
@@ -89,7 +89,7 @@ const VolunteerNotifications = () => {
   };
 
   const markAsRead = (id: number) => {
-    setNotifications(notifications.map(n => 
+    setNotifications(notifications.map(n =>
       n.id === id ? { ...n, read: true } : n
     ));
   };
@@ -115,7 +115,7 @@ const VolunteerNotifications = () => {
   return (
     <>
       <VolunteerHeader title="Notifications" subtitle={`${unreadCount} unread notifications`} />
-      
+
       <div className="flex-1 overflow-auto p-6 space-y-6">
         {/* Header Actions */}
         <div className="flex items-center justify-between">
@@ -146,8 +146,8 @@ const VolunteerNotifications = () => {
             <TabsContent key={filter} value={filter} className="mt-6">
               <div className="space-y-3">
                 {filterNotifications(filter).map((notification) => (
-                  <Card 
-                    key={notification.id} 
+                  <Card
+                    key={notification.id}
                     className={`transition-all ${!notification.read ? 'border-l-4 border-l-primary bg-accent/30' : ''}`}
                   >
                     <CardContent className="p-4">
@@ -166,18 +166,18 @@ const VolunteerNotifications = () => {
                             </div>
                             <div className="flex items-center gap-2">
                               {!notification.read && (
-                                <Button 
-                                  variant="ghost" 
-                                  size="icon" 
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
                                   className="h-8 w-8"
                                   onClick={() => markAsRead(notification.id)}
                                 >
                                   <Check className="w-4 h-4 text-primary" />
                                 </Button>
                               )}
-                              <Button 
-                                variant="ghost" 
-                                size="icon" 
+                              <Button
+                                variant="ghost"
+                                size="icon"
                                 className="h-8 w-8 text-muted-foreground hover:text-destructive"
                                 onClick={() => deleteNotification(notification.id)}
                               >
