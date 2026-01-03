@@ -44,18 +44,16 @@ const VolunteerProfile = () => {
 
   const fetchProfile = async () => {
     try {
-      const token = localStorage.getItem("token");
+      // const token = localStorage.getItem("token");
 
-      if (!token) {
-        throw new Error("No token found");
-      }
+      // if (!token) {
+      //   throw new Error("No token found");
+      // }
 
       const res = await axios.get(
         "https://nvn-africa-platform.onrender.com/api/user/user-profile",
         {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+          timeout: 8000,
         }
       );
 
