@@ -4,9 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { 
-  FolderKanban, 
-  Clock, 
+import {
+  FolderKanban,
+  Clock,
   Calendar,
   ArrowRight,
   MapPin,
@@ -19,53 +19,30 @@ const VolunteerDashboard = () => {
   const navigate = useNavigate();
 
   const stats = [
-    { icon: FolderKanban, label: 'Projects Joined', value: '8', color: 'bg-primary' },
-    { icon: Clock, label: 'Hours Volunteered', value: '156', color: 'bg-success' },
-    { icon: Calendar, label: 'Upcoming Events', value: '3', color: 'bg-warning' },
-    { icon: Star, label: 'Rating', value: '4.8', color: 'bg-blue-500' },
+    { icon: FolderKanban, label: 'Projects Joined', value: '0', color: 'bg-primary' },
+    { icon: Clock, label: 'Hours Volunteered', value: '0', color: 'bg-success' },
+    { icon: Calendar, label: 'Upcoming Events', value: '0', color: 'bg-warning' },
+    { icon: Star, label: 'Rating', value: '0', color: 'bg-blue-500' },
   ];
 
   const availableProjects = [
-    { 
-      id: 1, 
-      name: 'Community Health Camp', 
-      description: 'Free health screening and medical assistance',
-      location: 'Lagos, Nigeria',
-      date: 'Dec 15-20, 2024',
-      volunteersNeeded: 5,
-      category: 'Health'
-    },
-    { 
-      id: 2, 
-      name: 'Youth Education Drive', 
-      description: 'After-school tutoring for underprivileged youth',
-      location: 'Nairobi, Kenya',
-      date: 'Dec 25, 2024',
-      volunteersNeeded: 8,
-      category: 'Education'
-    },
-    { 
-      id: 3, 
-      name: 'Environmental Clean-up', 
-      description: 'Beach and riverside cleaning initiative',
-      location: 'Accra, Ghana',
-      date: 'Dec 18, 2024',
-      volunteersNeeded: 12,
-      category: 'Environment'
-    },
+    {
+      id: 1,
+      name: 'Comming Soon',
+
+    }
   ];
 
   const upcomingEvents = [
-    { id: 1, name: 'Health Camp Training', date: 'Dec 14', time: '10:00 AM' },
-    { id: 2, name: 'Team Meeting', date: 'Dec 15', time: '2:00 PM' },
-    { id: 3, name: 'Project Kickoff', date: 'Dec 15', time: '9:00 AM' },
+    { id: 1, name: 'Comming Soon' },
+
   ];
 
-  const notifications = [
-    { id: 1, message: 'Your request for Health Camp was approved!', time: '2 hours ago', type: 'success' },
-    { id: 2, message: 'New project available: Youth Education Drive', time: '5 hours ago', type: 'info' },
-    { id: 3, message: 'Reminder: Training session tomorrow', time: '1 day ago', type: 'warning' },
-  ];
+  // const notifications = [
+  //   { id: 1, message: 'Your request for Health Camp was approved!', time: '2 hours ago', type: 'success' },
+  //   { id: 2, message: 'New project available: Youth Education Drive', time: '5 hours ago', type: 'info' },
+  //   { id: 3, message: 'Reminder: Training session tomorrow', time: '1 day ago', type: 'warning' },
+  // ];
 
   const getCategoryColor = (category: string) => {
     switch (category) {
@@ -79,7 +56,7 @@ const VolunteerDashboard = () => {
   return (
     <>
       <VolunteerHeader title="Dashboard" subtitle="Welcome back, John!" />
-      
+
       <div className="flex-1 overflow-auto p-6 space-y-6">
         {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -111,19 +88,19 @@ const VolunteerDashboard = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               {availableProjects.map((project) => (
-                <div 
-                  key={project.id} 
+                <div
+                  key={project.id}
                   className="p-4 border border-border rounded-xl hover:border-primary/50 cursor-pointer transition-all"
                   onClick={() => navigate(`/volunteer/projects/${project.id}`)}
                 >
                   <div className="flex items-start justify-between mb-2">
                     <div>
                       <h4 className="font-semibold text-foreground">{project.name}</h4>
-                      <p className="text-sm text-muted-foreground">{project.description}</p>
+                      {/* <p className="text-sm text-muted-foreground">{project.description}</p> */}
                     </div>
-                    <Badge className={getCategoryColor(project.category)}>{project.category}</Badge>
+                    {/* <Badge className={getCategoryColor(project.category)}>{project.category}</Badge> */}
                   </div>
-                  <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mt-3">
+                  {/* <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mt-3">
                     <span className="flex items-center gap-1">
                       <MapPin className="w-4 h-4" /> {project.location}
                     </span>
@@ -133,7 +110,7 @@ const VolunteerDashboard = () => {
                     <span className="flex items-center gap-1">
                       <Users className="w-4 h-4" /> {project.volunteersNeeded} needed
                     </span>
-                  </div>
+                  </div> */}
                 </div>
               ))}
             </CardContent>
@@ -154,11 +131,11 @@ const VolunteerDashboard = () => {
                   <div key={event.id} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
                     <div>
                       <p className="text-sm font-medium text-foreground">{event.name}</p>
-                      <p className="text-xs text-muted-foreground">{event.time}</p>
+                      {/* <p className="text-xs text-muted-foreground">{event.time}</p> */}
                     </div>
-                    <Badge variant="outline" className="text-primary border-primary">
+                    {/* <Badge variant="outline" className="text-primary border-primary">
                       {event.date}
-                    </Badge>
+                    </Badge> */}
                   </div>
                 ))}
               </CardContent>
@@ -172,21 +149,21 @@ const VolunteerDashboard = () => {
                   Notifications
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
+              {/* <CardContent className="space-y-3">
                 {notifications.map((notification) => (
                   <div key={notification.id} className="border-l-2 border-primary pl-3 py-1">
                     <p className="text-sm text-foreground">{notification.message}</p>
                     <p className="text-xs text-muted-foreground">{notification.time}</p>
                   </div>
                 ))}
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="w-full text-primary border-primary hover:bg-accent"
                   onClick={() => navigate('/volunteer/notifications')}
                 >
                   View All
                 </Button>
-              </CardContent>
+              </CardContent> */}
             </Card>
           </div>
         </div>
