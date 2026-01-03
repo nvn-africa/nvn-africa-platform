@@ -211,14 +211,42 @@ const Index = () => {
               creating lasting change across the continent.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button
+              {/* <Button
                 size="lg"
                 className="gradient-primary text-lg px-8 py-6 hover-scale"
                 onClick={goToDashboard}
               >
                 Join Us
                 <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
+              </Button> */}
+              <div className="flex items-center gap-2">
+                {user ? (
+                  // IF USER IS LOGGED IN: single Dashboard button
+                  <>
+                    <Button
+                      onClick={goToDashboard}
+                      className="gradient-primary"
+                    >
+                      Go to Dashboard
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+
+                  </>
+                ) : (
+                  // IF USER IS NOT LOGGED IN: show portal buttons
+                  <>
+                    <Button
+                      variant="outline"
+                      onClick={() => navigate('/volunteer/auth')}
+                      className="border-volunteer-primary text-volunteer-primary hover:bg-volunteer-primary hover:text-white"
+                    >
+                      Join Us
+                    </Button>
+
+
+                  </>
+                )}
+              </div>
               <Button
                 variant="outline"
                 size="lg"
