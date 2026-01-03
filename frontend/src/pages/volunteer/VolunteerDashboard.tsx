@@ -178,23 +178,23 @@ const VolunteerDashboard = () => {
               <div>
                 <div className="flex items-center justify-between text-sm mb-2">
                   <span className="text-muted-foreground">Hours Goal (200 hrs)</span>
-                  <span className="font-medium text-foreground">78%</span>
+                  <span className="font-medium text-foreground">0%</span>
                 </div>
-                <Progress value={78} className="h-3" />
+                <Progress value={0} className="h-3" />
               </div>
               <div>
                 <div className="flex items-center justify-between text-sm mb-2">
                   <span className="text-muted-foreground">Projects Goal (10)</span>
-                  <span className="font-medium text-foreground">80%</span>
+                  <span className="font-medium text-foreground">0%</span>
                 </div>
-                <Progress value={80} className="h-3" />
+                <Progress value={0} className="h-3" />
               </div>
               <div>
                 <div className="flex items-center justify-between text-sm mb-2">
                   <span className="text-muted-foreground">Skills Earned</span>
-                  <span className="font-medium text-foreground">5/8</span>
+                  <span className="font-medium text-foreground">0/0</span>
                 </div>
-                <Progress value={62.5} className="h-3" />
+                <Progress value={0} className="h-3" />
               </div>
             </div>
           </CardContent>
