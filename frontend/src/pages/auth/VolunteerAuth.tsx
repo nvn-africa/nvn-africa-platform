@@ -119,7 +119,7 @@ const VolunteerAuth = () => {
     }
 
 
-  
+
   };
 
   const toggleTag = (array: string[], item: string, setter: (arr: string[]) => void) => {
@@ -251,9 +251,9 @@ const VolunteerAuth = () => {
             {/* Signup Form */}
             {activeTab === "signup" && (
               <form onSubmit={handleSignup} className="space-y-4">
-                {errors.general && (
+                {/* {errors.general && (
                   <p className="text-red-500 text-sm mt-2">{errors.general}</p>
-                )}
+                )} */}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="firstname">First Name</Label>
